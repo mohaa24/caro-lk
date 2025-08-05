@@ -26,7 +26,7 @@ export const SearchComp = () => {
 
 
     return (
-        <div className=" flex flex-col-reverse gap-3 justify-center w-full md:justify-between  p-5 md:flex-row md:gap-0 md:pr-0 bg-cover bg-[#ee0841]" 
+        <div className=" flex flex-col-reverse gap-3 justify-center w-full md:justify-between  p-5 md:flex-row md:gap-0 md:pr-0 bg-cover bg-[#ee0841]"
         // style={{ backgroundImage: `url("bg.jpeg")` }}
         >
             <Card className=" gap-0 p-5 px-2 min-w-[300px] ">
@@ -80,7 +80,7 @@ export const SearchComp = () => {
 
                 </CardContent>
             </Card>
-                                <Image src = {newCar} height={400} className=" md:block"/>
+            <Image src={newCar} height={400} alt="Buy new car" className=" md:block" />
 
         </div>
     )
