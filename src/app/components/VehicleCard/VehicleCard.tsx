@@ -388,7 +388,7 @@ const VehicleViewer = () => {
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
 
   return (
-    <div className="max-w-7xl mx-auto py-8">
+    <div className="max-w-7xl mx-auto py-8 px-5 md:px-0">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>

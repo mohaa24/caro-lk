@@ -9,7 +9,7 @@ export const VehicleTypeSelector = ():JSX.Element=>{
               <span>{i}</span>
             </button>)
     }
-    return(  <div className=" bg-white">
+    return(  <div className=" hidden md:block bg-white">
         <div className=" ">
           <div className="flex items-center space-x-8 overflow-x-auto scrollbar-hide pt-1 font-bold">
        {render (VehicleTypes)}

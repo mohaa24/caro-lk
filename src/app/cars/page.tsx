@@ -2,12 +2,14 @@
 
 import Navbar from '@/app/components/NavBar/NavBar';
 import { SearchComp } from '@/app/components/Search/Search';
-import VehicleViewer from './components/VehicleCard/VehicleCard';
+import VehicleViewer from '../components/VehicleCard/VehicleCard';
 
 export default function Home() {
   return (
     <div className="">
- 
+      <header className='md:max-w-7xl md:mx-auto'>
+          <Navbar/>
+      </header>
       <main className='max-w-7xl mx-auto'>
        
         <SearchComp/>
