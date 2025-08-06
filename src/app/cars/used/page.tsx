@@ -1,5 +1,6 @@
 'use client';
 
+import VehicleFilterSystem from '@/app/components/AdvancedFilter/AdvancedFilter';
 import { SearchComp } from '@/app/components/Search/Search';
 import VehicleViewer from '@/app/components/VehicleCard/VehicleCard';
 
@@ -10,9 +11,9 @@ export default function OldCars() {
           {/* <Navbar/> */}
       </header>
       <main className='max-w-7xl mx-auto'>
-       
-        <SearchComp/>
-        <VehicleViewer/>
+       <VehicleFilterSystem/>
+        {/* <SearchComp/> */}
+        {/* <VehicleViewer/> */}
       </main>
       <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
 

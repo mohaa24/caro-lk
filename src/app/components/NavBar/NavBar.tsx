@@ -7,6 +7,7 @@ import Image from 'next/image';
 import logo from '../../../../public/logo.png';
 import { useVehicleTypeStore } from '@/app/store/vehicleSlice';
 import { vehicleSubmenus } from '@/app/Types/CommonTypes';
+import Link from 'next/link';
 
 const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -39,7 +40,10 @@ const Navbar = () => {
                 <div className="flex justify-between gap-5 items-center py-1">
 
                     <div className="flex items-center">
-                        <Image src={logo} width={160} height={60} alt="Caro logo" className='' />
+                        <Link href='/'>
+                                                <Image src={logo} width={160} height={60} alt="Caro logo" className='' />
+
+                        </Link>
                     </div>
                     {/* Desktop Navigation Links */}
                     <div className='flex w-full justify-between'>
