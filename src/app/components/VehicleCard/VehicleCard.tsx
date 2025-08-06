@@ -388,18 +388,18 @@ const VehicleViewer = () => {
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-5 md:px-0">
+    <div className="max-w-7xl mx-auto px-5 md:px-0">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <div>
+        {/* <div>
           <h1 className="text-2xl font-bold">Used Cars for Sale</h1>
           <p className="text-muted-foreground">
             {mockVehicles.length} vehicles found
           </p>
-        </div>
+        </div> */}
         
         {/* View Toggle */}
-        <div className="flex items-center space-x-2">
+        {/* <div className="flex items-center space-x-2">
           <span className="text-sm text-muted-foreground">View:</span>
           <div className="flex">
             <Button
@@ -421,7 +421,7 @@ const VehicleViewer = () => {
               List
             </Button>
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* Vehicle Grid */}

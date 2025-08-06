@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect, ReactNode } from 'react';
-import { create } from 'zustand';
 import {
     Dialog,
     DialogContent,
@@ -27,7 +26,17 @@ import {
     Car,
     Fuel,
     Calendar,
-    MapPin
+    MapPin,
+    CarIcon,
+    Settings,
+    Gauge,
+    PoundSterling,
+    Users,
+    ShieldCheck,
+    Truck,
+    Globe,
+    UserCheck,
+    Wrench
 } from 'lucide-react';
 import {
     VehicleType,
@@ -42,37 +51,10 @@ import { DialogClose } from '@radix-ui/react-dialog';
 import vehicleData from '@/data/vehicleData.json';
 import locationData from '@/data/locationData.json';
 import { SearchableSelect } from '@/components/ui/searchable-select';
+import { useVehicleFilters, VehicleFilters } from '@/app/store/filtersSlice';
+import VehicleViewer from '../VehicleCard/VehicleCard';
 
 // Filter Interfaces
-interface VehicleFilters {
-    vehicle_type: VehicleType[];
-    make: string;
-    model: string;
-    variant: string;
-    yearRange: [number, number];
-    priceRange: [number, number];
-    mileageRange: [number, number];
-    fuel_type: FuelType[];
-    transmission: TransmissionType[];
-    body_type: BodyType[];
-    color: string[];
-    engine_size: [number, number];
-    doors: number[];
-    location: string;
-    seller_type: SellerType[];
-    import_status: ImportStatus[];
-    condition: VehicleCondition[];
-    ownership_history: [number, number];
-}
-
-interface VehicleFiltersStore {
-    filters: VehicleFilters;
-    setFilter: <K extends keyof VehicleFilters>(key: K, value: VehicleFilters[K]) => void;
-    clearAllFilters: () => void;
-    clearFilter: (key: keyof VehicleFilters) => void;
-    getActiveFiltersCount: () => number;
-}
-
 interface FilterPill {
     key: string;
     label: string;
@@ -132,121 +114,6 @@ const popularMakes = vehicleData.makes;
 
 // Model data mapping from JSON file
 const modelsByMake: Record<string, string[]> = vehicleData.modelsByMake;
-
-// Zustand store
-const useVehicleFilters = create<VehicleFiltersStore>((set, get) => ({
-    filters: {
-        vehicle_type: [],
-        make: '',
-        model: '',
-        variant: '',
-        yearRange: [2000, 2024] as [number, number],
-        priceRange: [0, 100000] as [number, number],
-        mileageRange: [0, 200000] as [number, number],
-        fuel_type: [],
-        transmission: [],
-        body_type: [],
-        color: [],
-        engine_size: [0, 6] as [number, number],
-        doors: [],
-        location: '',
-        seller_type: [],
-        import_status: [],
-        condition: [],
-        ownership_history: [1, 10] as [number, number],
-    },
-
-    setFilter: (key, value) => set((state) => ({
-        filters: { ...state.filters, [key]: value }
-    })),
-
-    clearAllFilters: () => set(() => ({
-        filters: {
-            vehicle_type: [],
-            make: '',
-            model: '',
-            variant: '',
-            yearRange: [2000, 2024] as [number, number],
-            priceRange: [0, 100000] as [number, number],
-            mileageRange: [0, 200000] as [number, number],
-            fuel_type: [],
-            transmission: [],
-            body_type: [],
-            color: [],
-            engine_size: [0, 6] as [number, number],
-            doors: [],
-            location: '',
-            seller_type: [],
-            import_status: [],
-            condition: [],
-            ownership_history: [1, 10] as [number, number],
-        }
-    })),
-
-    clearFilter: (key) => set((state) => {
-        const newFilters = { ...state.filters };
-        switch (key) {
-            case 'vehicle_type':
-            case 'fuel_type':
-            case 'transmission':
-            case 'body_type':
-            case 'color':
-            case 'doors':
-            case 'seller_type':
-            case 'import_status':
-            case 'condition':
-                (newFilters[key] as string[] | VehicleType[] | FuelType[] | TransmissionType[] | BodyType[] | number[] | SellerType[] | ImportStatus[] | VehicleCondition[]) = [];
-                break;
-            case 'make':
-            case 'model':
-            case 'variant':
-            case 'location':
-                (newFilters[key] as string) = '';
-                break;
-            case 'yearRange':
-                newFilters[key] = [2000, 2024];
-                break;
-            case 'priceRange':
-                newFilters[key] = [0, 100000];
-                break;
-            case 'mileageRange':
-                newFilters[key] = [0, 200000];
-                break;
-            case 'engine_size':
-                newFilters[key] = [0, 6];
-                break;
-            case 'ownership_history':
-                newFilters[key] = [1, 10];
-                break;
-        }
-        return { filters: newFilters };
-    }),
-
-    getActiveFiltersCount: () => {
-        const { filters } = get();
-        let count = 0;
-
-        Object.entries(filters).forEach(([key, value]) => {
-            if (Array.isArray(value) && value.length > 0) {
-                if (key === 'yearRange' || key === 'priceRange' || key === 'mileageRange' ||
-                    key === 'engine_size' || key === 'ownership_history') {
-                    // For ranges, check if they differ from default
-                    if (key === 'yearRange' && (value[0] !== 2000 || value[1] !== 2024)) count++;
-                    else if (key === 'priceRange' && (value[0] !== 0 || value[1] !== 100000)) count++;
-                    else if (key === 'mileageRange' && (value[0] !== 0 || value[1] !== 200000)) count++;
-                    else if (key === 'engine_size' && (value[0] !== 0 || value[1] !== 6)) count++;
-                    else if (key === 'ownership_history' && (value[0] !== 1 || value[1] !== 10)) count++;
-                } else {
-                    count++;
-                }
-            } else if (typeof value === 'string' && value.trim() !== '') {
-                count++;
-            }
-        });
-
-        return count;
-    }
-}));
 
 // Filter Pills Component
 const FilterPills: React.FC = () => {
@@ -386,6 +253,29 @@ const QuickFilters: React.FC<QuickFiltersProps> = ({ onOpenAdvanced }) => {
     );
 };
 
+// Function to get icon for each filter section
+const getSectionIcon = (sectionId?: string) => {
+    const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+        'vehicle-type': Car,
+        'make-model': CarIcon,
+        'year': Calendar,
+        'price': PoundSterling,
+        'mileage': Gauge,
+        'body-type': Truck,
+        'fuel-type': Fuel,
+        'transmission': Settings,
+        'engine-size': Wrench,
+        'doors': Car,
+        'seller-type': UserCheck,
+        'condition': ShieldCheck,
+        'import-status': Globe,
+        'location': MapPin,
+        'owners': Users,
+    };
+
+    return iconMap[sectionId || ''] || Car;
+};
+
 // Collapsible Filter Section Component
 const FilterSection: React.FC<FilterSectionProps> = ({
     title,
@@ -397,6 +287,9 @@ const FilterSection: React.FC<FilterSectionProps> = ({
 }) => {
     // Determine if this section should be open
     const isOpen = activeSection ? activeSection === sectionId : defaultOpen;
+
+    // Get the appropriate icon for this section
+    const IconComponent = getSectionIcon(sectionId);
 
     const handleToggle = (newOpen: boolean) => {
         if (onSectionChange && sectionId) {
@@ -413,7 +306,12 @@ const FilterSection: React.FC<FilterSectionProps> = ({
                         variant="ghost"
                         className="flex w-full justify-between p-0 font-semibold text-left hover:bg-transparent"
                     >
-                        <span>{title}</span>
+                        <span className='flex gap-3 items-center'>
+                            <span>
+                                <IconComponent className="h-4 w-4" />
+                            </span>
+                            {title}
+                        </span>
                         {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                     </Button>
                 </CollapsibleTrigger>
@@ -833,7 +731,7 @@ const AdvancedFiltersModal: React.FC<AdvancedFiltersModalProps> = ({
                                     <SearchableSelect
                                         options={[
                                             ...locationData.popularCities,
-                                            ...Object.keys(locationData.locationsByDistrict).flatMap(district => 
+                                            ...Object.keys(locationData.locationsByDistrict).flatMap(district =>
                                                 locationData.locationsByDistrict[district as keyof typeof locationData.locationsByDistrict]
                                             )
                                         ].filter((location, index, array) => array.indexOf(location) === index).sort()}
@@ -884,18 +782,7 @@ const AdvancedFiltersModal: React.FC<AdvancedFiltersModalProps> = ({
     );
 };
 
-// Sample Vehicle Card Component
-const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => (
-    <div className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-        <div className="aspect-video bg-gray-200 rounded-lg mb-3 flex items-center justify-center">
-            <Car className="h-12 w-12 text-gray-400" />
-        </div>
-        <h3 className="font-semibold text-lg">{vehicle.title}</h3>
-        <p className="text-gray-600">{vehicle.year} • {vehicle.mileage.toLocaleString()} miles</p>
-        <p className="text-xl font-bold text-blue-600 mt-2">£{vehicle.price.toLocaleString()}</p>
-        <p className="text-sm text-gray-500 mt-1">{vehicle.location}</p>
-    </div>
-);
+
 
 // Main Component
 const VehicleFilterSystem: React.FC = () => {
@@ -920,42 +807,19 @@ const VehicleFilterSystem: React.FC = () => {
         }
     };
 
-    // Sample vehicles data
-    const sampleVehicles = [
-        {
-            title: "2020 Toyota Camry SE",
-            year: 2020,
-            price: 22500,
-            mileage: 35000,
-            location: "London, UK"
-        },
-        {
-            title: "2019 BMW 3 Series",
-            year: 2019,
-            price: 28900,
-            mileage: 42000,
-            location: "Manchester, UK"
-        },
-        {
-            title: "2021 Honda CR-V",
-            year: 2021,
-            price: 26750,
-            mileage: 28000,
-            location: "Birmingham, UK"
-        },
-    ];
-
+   
     return (
-        <div className="max-w-7xl mx-auto p-6">
-            <div className="mb-8">
+        <>
+        <div className="max-w-7xl mx-auto py-5 px-5">
+            <div className="">
                 <h1 className="text-3xl font-bold mb-6">Find Your Perfect Vehicle</h1>
 
-                <div className='flex w-full justify-between'>   {/* Quick Filters */}
+                <div className='flex flex-col md:flex-row w-full justify-between'>   {/* Quick Filters */}
                     <QuickFilters
                         onOpenAdvanced={handleOpenAdvanced}
                     />
-                    <Button 
-                        className="flex items-center gap-2"
+                    <Button
+                        className="hidden md:flex items-center gap-2"
                         onClick={() => handleOpenAdvanced()}
                     >
                         <SlidersHorizontal className="h-4 w-4" />
@@ -971,7 +835,7 @@ const VehicleFilterSystem: React.FC = () => {
                 <FilterPills />
 
                 {/* Advanced Filters Button */}
-                <div className="flex w-full items-center gap-4 mb-6">
+                <div className="flex w-full items-center gap-4">
                     <AdvancedFiltersModal
                         onScrollToSection={handleScrollToSectionSetup}
                         isOpen={isModalOpen}
@@ -987,13 +851,12 @@ const VehicleFilterSystem: React.FC = () => {
                 </div>
             </div>
 
-            {/* Vehicle Results */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {sampleVehicles.map((vehicle, index) => (
-                    <VehicleCard key={index} vehicle={vehicle} />
-                ))}
-            </div>
+          
+          
         </div>
+            {/* Vehicle Results */}
+           <VehicleViewer/>  
+           </>
     );
 };
 
