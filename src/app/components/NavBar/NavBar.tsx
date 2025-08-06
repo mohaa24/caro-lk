@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Search, Menu, X, User, Heart, Bell, MapPin, Phone, Mail } from 'lucide-react';
+import { Search, Menu, X, User, Heart } from 'lucide-react';
 import { VehicleTypeSelector } from './VehicleTypeSelector/VehicleTypeSelector';
 import Image from 'next/image';
 import logo from '../../../../public/logo.png';
@@ -41,76 +41,77 @@ const Navbar = () => {
 
                     <div className="flex items-center">
                         <Link href='/'>
-                                                <Image src={logo} width={160} height={60} alt="Caro logo" className='' />
+                            <Image src={logo} width={160} height={60} alt="Caro logo" className='' />
 
                         </Link>
                     </div>
                     {/* Desktop Navigation Links */}
-                    <div className='flex w-full justify-between'>
-                    <div className="hidden md:flex items-center space-x-8">
-                        {renderSubMenus()}
-                    </div>
-
-                    {/* Right side actions */}
-                    <div className="flex items-center space-x-4">
-
-                        {/* Search Icon - mobile only */}
-                        <button className="md:hidden p-2 text-gray-600 hover:text-[#5ddbe8]">
-                            <Search className="w-5 h-5" />
-                        </button>
-
-                        {/* Favorites */}
-                        <button className="flex flex-col items-center p-2 text-gray-600 hover:text-[#5ddbe8]">
-                            <Heart className="w-5 h-5" />
-                            <span className="hidden sm:block text-sm">Saved</span>
-
-                        </button>
-
-                        {/* User Menu */}
-                        <div className="relative">
-                            <button
-                                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                                className="flex flex-col items-center space-x-1 p-2 text-gray-600 hover:text-[#5ddbe8]"
-                            >
-                                <User className="w-5 h-5" />
-                                <span className="hidden sm:block text-sm">Account</span>
-                            </button>
-
-                            {isUserMenuOpen && (
-                                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-                                    <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                        My Profile
-                                    </a>
-                                    <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                        My Listings
-                                    </a>
-                                    <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                        Saved Vehicles
-                                    </a>
-                                    <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                        Messages
-                                    </a>
-                                    <hr className="my-1" />
-                                    <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                        Sign Out
-                                    </a>
-                                </div>
-                            )}
+                    <div className='flex w-full justify-end md:justify-between'>
+                        <div className="hidden md:flex items-center space-x-8">
+                            {renderSubMenus()}
                         </div>
 
-                        {/* Sell Button */}
-                        <button className="hidden sm:block bg-[#ee0841] hover:bg-red-500 text-white font-bold px-4 py-2 rounded-md transition-colors">
-                            Sell Your Car
-                        </button>
+                        {/* Right side actions */}
+                        <div className="flex items-center space-x-4">
 
-                        {/* Mobile menu button */}
-                        <button
-                            onClick={() => setIsMenuOpen(!isMenuOpen)}
-                            className="md:hidden p-2 text-gray-600 hover:text-[#5ddbe8]"
-                        >
-                            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-                        </button>
-                    </div></div>
+                            {/* Search Icon - mobile only */}
+                            <button className="md:hidden p-2 text-gray-600 hover:text-[#5ddbe8]">
+                                <Search className="w-5 h-5" />
+                            </button>
+
+                            {/* Favorites */}
+                            <button className="flex flex-col items-center p-2 text-gray-600 hover:text-[#5ddbe8]">
+                                <Heart className="w-5 h-5" />
+                                <span className="hidden sm:block text-sm">Saved</span>
+
+                            </button>
+
+                            {/* User Menu */}
+                            <div className="relative">
+                                <button
+                                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                                    className="flex flex-col items-center space-x-1 p-2 text-gray-600 hover:text-[#5ddbe8]"
+                                >
+                                    <User className="w-5 h-5" />
+                                    <span className="hidden sm:block text-sm">Account</span>
+                                </button>
+
+                                {isUserMenuOpen && (
+                                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                                        <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                            My Profile
+                                        </a>
+                                        <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                            My Listings
+                                        </a>
+                                        <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                            Saved Vehicles
+                                        </a>
+                                        <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                            Messages
+                                        </a>
+                                        <hr className="my-1" />
+                                        <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                            Sign Out
+                                        </a>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Sell Button */}
+                            <button className="hidden sm:block bg-[#ee0841] hover:bg-red-500 text-white font-bold px-4 py-2 rounded-md transition-colors">
+                                Sell Your Car
+                            </button>
+
+                            {/* Mobile menu button */}
+                            <button
+                                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                                className="md:hidden p-2 text-gray-600 hover:text-[#5ddbe8]"
+                            >
+                                {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Mobile Navigation Menu */}
