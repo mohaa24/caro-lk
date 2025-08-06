@@ -1,0 +1,122 @@
+{
+  "districts": [
+    "Colombo", "Gampaha", "Kalutara", "Kandy", "Matale", "Nuwara Eliya", "Galle", "Matara", "Hambantota",
+    "Jaffna", "Kilinochchi", "Mannar", "Vavuniya", "Mullaitivu", "Batticaloa", "Ampara", "Trincomalee",
+    "Kurunegala", "Puttalam", "Anuradhapura", "Polonnaruwa", "Badulla", "Moneragala", "Ratnapura", "Kegalle"
+  ],
+  "popularCities": [
+    "Colombo", "Kandy", "Galle", "Jaffna", "Anuradhapura", "Trincomalee", "Batticaloa", "Kurunegala",
+    "Ratnapura", "Negombo", "Kalutara", "Matara", "Hambantota", "Nuwara Eliya", "Badulla", "Monaragala",
+    "Gampaha", "Kegalle", "Puttalam", "Polonnaruwa", "Matale", "Ampara", "Vavuniya", "Mannar", "Kilinochchi"
+  ],
+  "locationsByDistrict": {
+    "Colombo": [
+      "Colombo 1", "Colombo 2", "Colombo 3", "Colombo 4", "Colombo 5", "Colombo 6", "Colombo 7", "Colombo 8",
+      "Colombo 9", "Colombo 10", "Colombo 11", "Colombo 12", "Colombo 13", "Colombo 14", "Colombo 15",
+      "Dehiwala", "Mount Lavinia", "Moratuwa", "Kotte", "Maharagama", "Boralesgamuwa", "Piliyandala",
+      "Kesbewa", "Hanwella", "Avissawella", "Homagama", "Padukka", "Nugegoda", "Kohuwala", "Mirihana",
+      "Battaramulla", "Rajagiriya", "Thalawathugoda", "Malabe", "Athurugiriya", "Kaduwela"
+    ],
+    "Gampaha": [
+      "Negombo", "Katunayake", "Seeduwa", "Ja-Ela", "Wattala", "Hendala", "Welisara", "Ragama", "Kandana",
+      "Kelaniya", "Peliyagoda", "Kiribathgoda", "Delgoda", "Gampaha", "Veyangoda", "Minuwangoda", "Divulapitiya",
+      "Nittambuwa", "Mirigama", "Warakapola", "Kegalle", "Mawanella", "Galigamuwa", "Ruwanwella", "Yatiyantota",
+      "Deraniyagala", "Aranayaka", "Bulathkohupitiya", "Rambukkana"
+    ],
+    "Kalutara": [
+      "Kalutara", "Panadura", "Wadduwa", "Payagala", "Beruwala", "Aluthgama", "Bentota", "Ambalangoda",
+      "Elpitiya", "Balapitiya", "Hikkaduwa", "Dodanduwa", "Kosgoda", "Ahungalla", "Induruwa", "Kosgoda",
+      "Maggona", "Ingiriya", "Bulathsinhala", "Palindanuwara", "Walallawita", "Millaniya", "Agalawatta",
+      "Mathugama", "Dharga Town", "Horana"
+    ],
+    "Kandy": [
+      "Kandy", "Peradeniya", "Gampola", "Nawalapitiya", "Kadugannawa", "Pilimatalawa", "Kundasale", "Digana",
+      "Teldeniya", "Hasalaka", "Medadumbara", "Pasbage", "Daulagala", "Akurana", "Katugastota", "Ampitiya",
+      "Gelioya", "Pilimathalawa", "Wattegama", "Deltota", "Panvila", "Udadumbara", "Pathadumbara"
+    ],
+    "Galle": [
+      "Galle", "Hikkaduwa", "Ambalangoda", "Elpitiya", "Bentota", "Balapitiya", "Ahangama", "Koggala",
+      "Habaraduwa", "Unawatuna", "Talpe", "Weligama", "Mirissa", "Kathaluwa", "Akuressa", "Deniyaya",
+      "Morawaka", "Neluwa", "Nagoda", "Baddegama", "Imaduwa", "Yakkalamulla"
+    ],
+    "Matara": [
+      "Matara", "Weligama", "Mirissa", "Dikwella", "Tangalle", "Beliatta", "Urubokka", "Hakmana",
+      "Akuressa", "Malimbada", "Kotapola", "Pitabeddara", "Pasgoda", "Kirinda", "Gandara", "Thihagoda",
+      "Kamburupitiya", "Devinuwara", "Dondra"
+    ],
+    "Hambantota": [
+      "Hambantota", "Tangalle", "Tissamaharama", "Kataragama", "Ambalantota", "Beliatta", "Weeraketiya",
+      "Suriyawewa", "Lunugamvehera", "Kirinda", "Yala", "Bundala", "Palatupana", "Rekawa", "Dikwella"
+    ],
+    "Jaffna": [
+      "Jaffna", "Chavakachcheri", "Point Pedro", "Karainagar", "Velanai", "Kayts", "Delft", "Nallur",
+      "Kondavil", "Kopay", "Chunnakam", "Tellippalai", "Sandilipay", "Uduvil", "Manipay", "Mallakam"
+    ],
+    "Anuradhapura": [
+      "Anuradhapura", "Kekirawa", "Thambuttegama", "Galenbindunuwewa", "Mihintale", "Medawachchiya",
+      "Rambewa", "Talawa", "Nochchiyagama", "Galnewa", "Rajanganaya", "Thirappane", "Kahatagasdigiliya"
+    ],
+    "Kurunegala": [
+      "Kurunegala", "Puttalam", "Chilaw", "Kuliyapitiya", "Narammala", "Wariyapola", "Pannala", "Melsiripura",
+      "Bingiriya", "Nikaweratiya", "Giriulla", "Mawathagama", "Dodangaslanda", "Ridigama", "Ibbagamuwa",
+      "Galewela", "Maho", "Polpithigama"
+    ],
+    "Trincomalee": [
+      "Trincomalee", "Kinniya", "Mutur", "Kuchchaveli", "Nilaveli", "Uppuveli", "Somawathiya", "Gomarankadawala",
+      "Seruwila", "Pulmoddai", "Kantale", "Thambalagamuwa"
+    ],
+    "Batticaloa": [
+      "Batticaloa", "Kalmunai", "Ampara", "Akkaraipattu", "Sammanthurai", "Nintavur", "Addalachchenai",
+      "Chenkalady", "Eravur", "Valachchenai", "Kattankudy", "Oddamavadi", "Kaluwanchikudy", "Pasikudah"
+    ],
+    "Ratnapura": [
+      "Ratnapura", "Embilipitiya", "Balangoda", "Rakwana", "Pelmadulla", "Eheliyagoda", "Kuruwita",
+      "Kalawana", "Kolonna", "Nivitigala", "Godakawela", "Weligepola", "Kahawatta", "Ayagama"
+    ],
+    "Badulla": [
+      "Badulla", "Bandarawela", "Ella", "Haputale", "Welimada", "Mahiyanganaya", "Passara", "Lunugala",
+      "Kandaketiya", "Haliela", "Rideemaliyadda", "Soranathota", "Meegahakiula", "Uva Paranagama"
+    ],
+    "Nuwara Eliya": [
+      "Nuwara Eliya", "Hatton", "Talawakelle", "Maskeliya", "Ginigathena", "Kotagala", "Bogawantalawa",
+      "Norwood", "Dayagama", "Walapane", "Hangranoya", "Kotmale", "Ramboda", "Labukele"
+    ],
+    "Polonnaruwa": [
+      "Polonnaruwa", "Kaduruwela", "Hingurakgoda", "Medirigiriya", "Lankapura", "Welikanda", "Bakamuna",
+      "Elahera", "Thamankaduwa", "Dimbulagala"
+    ],
+    "Matale": [
+      "Matale", "Dambulla", "Sigiriya", "Galewela", "Ukuwela", "Rattota", "Pallepola", "Yatawatta",
+      "Laggala", "Wilgamuwa", "Naula", "Raththota"
+    ],
+    "Ampara": [
+      "Ampara", "Akkaraipattu", "Kalmunai", "Sammanthurai", "Nintavur", "Addalachchenai", "Sainthamaruthu",
+      "Thirukkovil", "Pottuvil", "Arugam Bay", "Lahugala", "Mahaoya", "Padiyathalawa", "Maha Oya",
+      "Damana", "Navithanveli"
+    ],
+    "Moneragala": [
+      "Moneragala", "Wellawaya", "Kataragama", "Buttala", "Bibile", "Medagama", "Madulla", "Sevanagala",
+      "Thanamalwila", "Badalkumbura"
+    ],
+    "Kegalle": [
+      "Kegalle", "Mawanella", "Warakapola", "Rambukkana", "Galigamuwa", "Ruwanwella", "Yatiyantota",
+      "Deraniyagala", "Aranayaka", "Bulathkohupitiya", "Dehiowita"
+    ],
+    "Puttalam": [
+      "Puttalam", "Chilaw", "Wennappuwa", "Dankotuwa", "Madampe", "Marawila", "Nattandiya", "Anamaduwa",
+      "Mahawewa", "Kalpitiya", "Udappuwa", "Pallama"
+    ],
+    "Vavuniya": [
+      "Vavuniya", "Nedunkerni", "Settikulam", "Puliyankoodal", "Omanthai", "Vengalacheddikulam", "Cheddikulam"
+    ],
+    "Mannar": [
+      "Mannar", "Nanattan", "Madhu", "Pesalai", "Thalvupadu", "Erukkalampiddy", "Murunkan"
+    ],
+    "Kilinochchi": [
+      "Kilinochchi", "Pallai", "Paranthan", "Poonakary", "Akkarayankulam", "Vishvamadu"
+    ],
+    "Mullaitivu": [
+      "Mullaitivu", "Oddusuddan", "Puthukkudiyiruppu", "Thunukkai", "Maritimepattu", "Weli Oya"
+    ]
+  }
+}

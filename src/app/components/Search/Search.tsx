@@ -2,27 +2,38 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@radix-ui/react-label";
-import { Select } from "@radix-ui/react-select";
 import { Search } from "lucide-react"
 import { useState } from "react"
-import { useForm } from "react-hook-form";
 import newCar from '../../../../public/newCar.png';
 import Image from "next/image";
+import { SearchableSelect } from "@/components/ui/searchable-select";
+import vehicleData from '@/data/vehicleData.json';
+import locationData from '@/data/locationData.json';
 export const SearchComp = () => {
     const [location, setLocation] = useState("");
-    const [minPrice, setMinPrice] = useState("");
-    const [maxPrice, setMaxPrice] = useState("");
+    const [make, setMake] = useState("");
+    const [model, setModel] = useState("");
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        console.log({ location, minPrice, maxPrice });
+        console.log({ location, make, model });
         // Handle form submission here
     };
-    const form = useForm()
+
+    // Get popular makes (first 20 most popular)
+    const popularMakes = Object.keys(vehicleData.modelsByMake).slice(0, 20);
+    
+    // Get models for selected make
+    const modelsByMake = vehicleData.modelsByMake as { [key: string]: string[] };
+    
+    // Get all locations
+    const allLocations = [
+        ...locationData.popularCities,
+        ...Object.keys(locationData.locationsByDistrict).flatMap(district => 
+            locationData.locationsByDistrict[district as keyof typeof locationData.locationsByDistrict]
+        )
+    ].filter((location, index, array) => array.indexOf(location) === index).sort();
 
 
     return (
@@ -34,43 +45,37 @@ export const SearchComp = () => {
                 <CardContent className="">
                     <div className=" space-y-2 flex flex-col">
                         <Label>Location</Label>
-                        <Select>
-                            <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Select a fruit" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectGroup>
-                                    <SelectLabel>Fruits</SelectLabel>
-                                    <SelectItem value="apple">Apple</SelectItem>
-                                </SelectGroup>
-                            </SelectContent>
-                        </Select>
+                        <SearchableSelect
+                            options={allLocations}
+                            value={location}
+                            onValueChange={setLocation}
+                            placeholder="Select location"
+                            searchPlaceholder="Search locations..."
+                        />
                         <Label>Make</Label>
-                        <Select>
-                            <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Select a fruit" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectGroup>
-                                    <SelectLabel>Fruits</SelectLabel>
-                                    <SelectItem value="apple">Apple</SelectItem>
-                                </SelectGroup>
-                            </SelectContent>
-                        </Select>
+                        <SearchableSelect
+                            options={popularMakes}
+                            value={make}
+                            onValueChange={(value) => {
+                                setMake(value);
+                                // Clear model when make changes
+                                setModel('');
+                            }}
+                            placeholder="Select make"
+                            searchPlaceholder="Search makes..."
+                        />
                         <Label>Model</Label>
-                        <Select>
-                            <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Select a fruit" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectGroup>
-                                    <SelectLabel>Fruits</SelectLabel>
-                                    <SelectItem value="apple">Apple</SelectItem>
-                                </SelectGroup>
-                            </SelectContent>
-                        </Select>
+                        <SearchableSelect
+                            options={make ? modelsByMake[make] || [] : []}
+                            value={model}
+                            onValueChange={setModel}
+                            placeholder={make ? "Select model" : "Select make first"}
+                            searchPlaceholder="Search models..."
+                            disabled={!make}
+                            emptyMessage={make ? "No models found" : "Select make first"}
+                        />
 
-                        <Button className="my-3"> <Search /> Search</Button>
+                        <Button className="my-3" onClick={handleSubmit}> <Search /> Search</Button>
                         {/* <div className="flex gap-3 justify-between py-2">
                             <button className="text-blue-500 underline">Reset</button>
                             <button className="text-blue-500 underline">Advanced filter</button>

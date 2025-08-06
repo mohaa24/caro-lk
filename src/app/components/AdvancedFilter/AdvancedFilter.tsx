@@ -18,7 +18,6 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import {
     ChevronDown,
@@ -28,8 +27,7 @@ import {
     Car,
     Fuel,
     Calendar,
-    MapPin,
-    Search
+    MapPin
 } from 'lucide-react';
 import {
     VehicleType,
@@ -41,12 +39,15 @@ import {
     VehicleCondition
 } from '@/app/Types/CommonTypes';
 import { DialogClose } from '@radix-ui/react-dialog';
+import vehicleData from '@/data/vehicleData.json';
+import locationData from '@/data/locationData.json';
+import { SearchableSelect } from '@/components/ui/searchable-select';
 
 // Filter Interfaces
 interface VehicleFilters {
     vehicle_type: VehicleType[];
-    make: string[];
-    model: string[];
+    make: string;
+    model: string;
     variant: string;
     yearRange: [number, number];
     priceRange: [number, number];
@@ -126,18 +127,18 @@ interface VehicleCardProps {
     };
 }
 
-// Sample data
-const popularMakes = [
-    'Toyota', 'Honda', 'BMW', 'Mercedes-Benz', 'Audi', 'Volkswagen',
-    'Ford', 'Nissan', 'Hyundai', 'Mazda', 'Subaru', 'Lexus'
-];
+// Sample data from JSON file
+const popularMakes = vehicleData.makes;
+
+// Model data mapping from JSON file
+const modelsByMake: Record<string, string[]> = vehicleData.modelsByMake;
 
 // Zustand store
 const useVehicleFilters = create<VehicleFiltersStore>((set, get) => ({
     filters: {
         vehicle_type: [],
-        make: [],
-        model: [],
+        make: '',
+        model: '',
         variant: '',
         yearRange: [2000, 2024] as [number, number],
         priceRange: [0, 100000] as [number, number],
@@ -162,8 +163,8 @@ const useVehicleFilters = create<VehicleFiltersStore>((set, get) => ({
     clearAllFilters: () => set(() => ({
         filters: {
             vehicle_type: [],
-            make: [],
-            model: [],
+            make: '',
+            model: '',
             variant: '',
             yearRange: [2000, 2024] as [number, number],
             priceRange: [0, 100000] as [number, number],
@@ -186,8 +187,6 @@ const useVehicleFilters = create<VehicleFiltersStore>((set, get) => ({
         const newFilters = { ...state.filters };
         switch (key) {
             case 'vehicle_type':
-            case 'make':
-            case 'model':
             case 'fuel_type':
             case 'transmission':
             case 'body_type':
@@ -198,6 +197,8 @@ const useVehicleFilters = create<VehicleFiltersStore>((set, get) => ({
             case 'condition':
                 (newFilters[key] as string[] | VehicleType[] | FuelType[] | TransmissionType[] | BodyType[] | number[] | SellerType[] | ImportStatus[] | VehicleCondition[]) = [];
                 break;
+            case 'make':
+            case 'model':
             case 'variant':
             case 'location':
                 (newFilters[key] as string) = '';
@@ -337,7 +338,7 @@ const QuickFilters: React.FC<QuickFiltersProps> = ({ onOpenAdvanced }) => {
             label: 'Make & Model',
             icon: Car,
             section: 'make-model',
-            hasValue: filters.make.length > 0 || filters.model.length > 0
+            hasValue: filters.make !== '' || filters.model !== ''
         },
         {
             label: 'Body Type',
@@ -348,13 +349,13 @@ const QuickFilters: React.FC<QuickFiltersProps> = ({ onOpenAdvanced }) => {
         {
             label: 'Fuel Type',
             icon: Fuel,
-            section: 'fuel-transmission',
+            section: 'fuel-type',
             hasValue: filters.fuel_type.length > 0
         },
         {
             label: 'Year',
             icon: Calendar,
-            section: 'year-price',
+            section: 'year',
             hasValue: filters.yearRange[0] !== 2000 || filters.yearRange[1] !== 2024
         },
         {
@@ -386,13 +387,13 @@ const QuickFilters: React.FC<QuickFiltersProps> = ({ onOpenAdvanced }) => {
 };
 
 // Collapsible Filter Section Component
-const FilterSection: React.FC<FilterSectionProps> = ({ 
-    title, 
-    children, 
-    defaultOpen = false, 
-    sectionId, 
-    activeSection, 
-    onSectionChange 
+const FilterSection: React.FC<FilterSectionProps> = ({
+    title,
+    children,
+    defaultOpen = false,
+    sectionId,
+    activeSection,
+    onSectionChange
 }) => {
     // Determine if this section should be open
     const isOpen = activeSection ? activeSection === sectionId : defaultOpen;
@@ -416,7 +417,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({
                         {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                     </Button>
                 </CollapsibleTrigger>
-                <CollapsibleContent className="pt-4">
+                <CollapsibleContent className="pt-4 px-3">
                     {children}
                 </CollapsibleContent>
             </Collapsible>
@@ -480,14 +481,13 @@ const AdvancedFiltersModal: React.FC<AdvancedFiltersModalProps> = ({
     onOpenChange
 }) => {
     const { filters, setFilter, getActiveFiltersCount, clearAllFilters } = useVehicleFilters();
-    const [selectedMake, setSelectedMake] = useState('');
     const [activeSection, setActiveSection] = useState<string | null>('vehicle-type'); // Default to vehicle-type being open
     const scrollRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
     const scrollToSection = (sectionId: string) => {
         // Set the active section to the target one (this will close others and open the target)
         setActiveSection(sectionId);
-        
+
         // Scroll to it with a small delay to allow the section to open
         setTimeout(() => {
             const element = scrollRefs.current[sectionId];
@@ -505,11 +505,11 @@ const AdvancedFiltersModal: React.FC<AdvancedFiltersModalProps> = ({
     const formatMileage = (mileage: number) => `${mileage.toLocaleString()} km`;
 
     return (
-        <Dialog open={isOpen} onOpenChange={onOpenChange}>
+        <Dialog open={isOpen} onOpenChange={onOpenChange} >
             <DialogTrigger asChild>
                 {children}
             </DialogTrigger>
-            <DialogContent className="sm:max-w-2xl max-h-[90vh] [&>button]:hidden [&>[data-radix-dialog-close]]:hidden flex flex-col">
+            <DialogContent className="sm:max-w-2xl max-h-[90vh] [&>button]:hidden [&>[data-radix-dialog-close]]:hidden flex flex-col overflow-hidden">
                 <DialogHeader className="flex-shrink-0">
                     <DialogTitle className="flex items-center justify-between">
                         <div className='flex w-full justify-start gap-3'>
@@ -527,281 +527,342 @@ const AdvancedFiltersModal: React.FC<AdvancedFiltersModalProps> = ({
                 </DialogHeader>
 
                 <div className="flex-1 overflow-y-auto">
-                    <div className="grid grid-cols-1 lg:grid-cols-1 gap-6 p-1">
-                        {/* Left Column */}
-                        <div>
-                            {/* Vehicle Type */}
-                            <div ref={el => { scrollRefs.current['vehicle-type'] = el; }}>
-                                <FilterSection 
-                                    title="Vehicle Type" 
-                                    sectionId="vehicle-type" 
-                                    activeSection={activeSection}
-                                    onSectionChange={setActiveSection}
-                                >
-                                    <CheckboxGroup
-                                        options={Object.values(VehicleType)}
-                                        value={filters.vehicle_type}
-                                        onChange={(value) => setFilter('vehicle_type', value as VehicleType[])}
-                                        columns={2}
-                                    />
-                                </FilterSection>
-                            </div>
-
-                            {/* Make & Model */}
-                            <div ref={el => { scrollRefs.current['make-model'] = el; }}>
-                                <FilterSection 
-                                    title="Make & Model" 
-                                    sectionId="make-model"
-                                    activeSection={activeSection}
-                                    onSectionChange={setActiveSection}
-                                >
-                                    <div className="space-y-4">
-                                        <div>
-                                            <Label>Make</Label>
-                                            <Select
-                                                value={selectedMake}
-                                                onValueChange={(value) => {
-                                                    setSelectedMake(value);
-                                                    if (!filters.make.includes(value) && value) {
-                                                        setFilter('make', [...filters.make, value]);
-                                                    }
-                                                }}
-                                            >
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select make" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {popularMakes.map(make => (
-                                                        <SelectItem key={make} value={make}>{make}</SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                            {filters.make.length > 0 && (
-                                                <div className="flex flex-wrap gap-1 mt-2">
-                                                    {filters.make.map(make => (
-                                                        <Badge key={make} variant="secondary" className="text-xs">
-                                                            {make}
-                                                            <button
-                                                                onClick={() => setFilter('make', filters.make.filter(m => m !== make))}
-                                                                className="ml-1"
-                                                            >
-                                                                <X className="h-3 w-3" />
-                                                            </button>
-                                                        </Badge>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        <div>
-                                            <Label htmlFor="variant">Variant</Label>
-                                            <Input
-                                                id="variant"
-                                                placeholder="e.g., SE, Sport, Limited"
-                                                value={filters.variant}
-                                                onChange={(e) => setFilter('variant', e.target.value)}
-                                            />
-                                        </div>
-                                    </div>
-                                </FilterSection>
-                            </div>
-
-                            {/* Year & Price */}
-                            <div ref={el => { scrollRefs.current['year-price'] = el; }}>
-                                <FilterSection 
-                                    title="Year & Price" 
-                                    sectionId="year-price"
-                                    activeSection={activeSection}
-                                    onSectionChange={setActiveSection}
-                                >
-                                    <div className="space-y-6">
-                                        <RangeSlider
-                                            label="Year"
-                                            value={filters.yearRange}
-                                            onChange={(value) => setFilter('yearRange', value)}
-                                            min={1990}
-                                            max={2024}
-                                        />
-                                        <RangeSlider
-                                            label="Price"
-                                            value={filters.priceRange}
-                                            onChange={(value) => setFilter('priceRange', value)}
-                                            min={0}
-                                            max={100000}
-                                            step={1000}
-                                            formatter={formatPrice}
-                                        />
-                                        <RangeSlider
-                                            label="Mileage"
-                                            value={filters.mileageRange}
-                                            onChange={(value) => setFilter('mileageRange', value)}
-                                            min={0}
-                                            max={200000}
-                                            step={1000}
-                                            formatter={formatMileage}
-                                        />
-                                    </div>
-                                </FilterSection>
-                            </div>
-
-                            {/* Body Type */}
-                            <div ref={el => { scrollRefs.current['body-type'] = el; }}>
-                                <FilterSection 
-                                    title="Body Type" 
-                                    sectionId="body-type"
-                                    activeSection={activeSection}
-                                    onSectionChange={setActiveSection}
-                                >
-                                    <CheckboxGroup
-                                        options={Object.values(BodyType)}
-                                        value={filters.body_type}
-                                        onChange={(value) => setFilter('body_type', value as BodyType[])}
-                                        columns={2}
-                                    />
-                                </FilterSection>
-                            </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-1 p-1">
+                        {/* Vehicle Type */}
+                        <div ref={el => { scrollRefs.current['vehicle-type'] = el; }}>
+                            <FilterSection
+                                title="Vehicle Type"
+                                sectionId="vehicle-type"
+                                activeSection={activeSection}
+                                onSectionChange={setActiveSection}
+                            >
+                                <CheckboxGroup
+                                    options={Object.values(VehicleType)}
+                                    value={filters.vehicle_type}
+                                    onChange={(value) => setFilter('vehicle_type', value as VehicleType[])}
+                                    columns={2}
+                                />
+                            </FilterSection>
                         </div>
 
-                        {/* Right Column */}
-                        <div>
-                            {/* Fuel & Transmission */}
-                            <div ref={el => { scrollRefs.current['fuel-transmission'] = el; }}>
-                                <FilterSection 
-                                    title="Fuel & Transmission" 
-                                    sectionId="fuel-transmission"
-                                    activeSection={activeSection}
-                                    onSectionChange={setActiveSection}
-                                >
-                                    <div className="space-y-4">
-                                        <div>
-                                            <Label className="text-sm font-medium">Fuel Type</Label>
-                                            <div className="mt-2">
-                                                <CheckboxGroup
-                                                    options={Object.values(FuelType)}
-                                                    value={filters.fuel_type}
-                                                    onChange={(value) => setFilter('fuel_type', value as FuelType[])}
-                                                    columns={2}
-                                                />
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <Label className="text-sm font-medium">Transmission</Label>
-                                            <div className="mt-2">
-                                                <CheckboxGroup
-                                                    options={Object.values(TransmissionType)}
-                                                    value={filters.transmission}
-                                                    onChange={(value) => setFilter('transmission', value as TransmissionType[])}
-                                                    columns={2}
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </FilterSection>
-                            </div>
-
-                            {/* Engine & Details */}
-                            <FilterSection 
-                                title="Engine & Details"
-                                sectionId="engine-details"
+                        {/* Make & Model */}
+                        <div ref={el => { scrollRefs.current['make-model'] = el; }}>
+                            <FilterSection
+                                title="Make & Model"
+                                sectionId="make-model"
                                 activeSection={activeSection}
                                 onSectionChange={setActiveSection}
                             >
                                 <div className="space-y-4">
-                                    <RangeSlider
-                                        label="Engine Size (L)"
-                                        value={filters.engine_size}
-                                        onChange={(value) => setFilter('engine_size', value)}
-                                        min={0}
-                                        max={6}
-                                        step={0.1}
-                                        formatter={(value) => `${value}L`}
-                                    />
-                                    <div>
-                                        <Label className="text-sm font-medium">Doors</Label>
-                                        <div className="mt-2">
-                                            <CheckboxGroup
-                                                options={['2', '3', '4', '5', '6+']}
-                                                value={filters.doors.map(String)}
-                                                onChange={(value) => setFilter('doors', value.map(Number))}
-                                                columns={3}
-                                            />
-                                        </div>
+                                    <div className='space-y-3'>
+                                        <Label>Make</Label>
+                                        <SearchableSelect
+                                            options={popularMakes}
+                                            value={filters.make}
+                                            onValueChange={(value) => {
+                                                setFilter('make', value);
+                                                // Clear model when make changes
+                                                setFilter('model', '');
+                                            }}
+                                            placeholder="Select make"
+                                            searchPlaceholder="Search makes..."
+                                        />
+                                        {filters.make && (
+                                            <div className="flex items-center gap-2 mt-2">
+                                                <Badge variant="secondary" className="text-xs">
+                                                    {filters.make}
+                                                    <button
+                                                        onClick={() => {
+                                                            setFilter('make', '');
+                                                            setFilter('model', '');
+                                                        }}
+                                                        className="ml-1"
+                                                    >
+                                                        <X className="h-3 w-3" />
+                                                    </button>
+                                                </Badge>
+                                            </div>
+                                        )}
                                     </div>
-                                </div>
-                            </FilterSection>
 
-                            {/* Seller & Condition */}
-                            <FilterSection 
-                                title="Seller & Condition"
-                                sectionId="seller-condition"
-                                activeSection={activeSection}
-                                onSectionChange={setActiveSection}
-                            >
-                                <div className="space-y-4">
-                                    <div>
-                                        <Label className="text-sm font-medium">Seller Type</Label>
-                                        <div className="mt-2">
-                                            <CheckboxGroup
-                                                options={Object.values(SellerType)}
-                                                value={filters.seller_type}
-                                                onChange={(value) => setFilter('seller_type', value as SellerType[])}
-                                                columns={2}
-                                            />
-                                        </div>
+                                    <div className='space-y-3'>
+                                        <Label>Model</Label>
+                                        <SearchableSelect
+                                            options={filters.make ? modelsByMake[filters.make] || [] : []}
+                                            value={filters.model}
+                                            onValueChange={(value) => setFilter('model', value)}
+                                            placeholder={filters.make ? "Select model" : "Select make first"}
+                                            searchPlaceholder="Search models..."
+                                            disabled={!filters.make}
+                                            emptyMessage={filters.make ? "No models found" : "Select make first"}
+                                        />
+                                        {filters.model && (
+                                            <div className="flex items-center gap-2 mt-2">
+                                                <Badge variant="secondary" className="text-xs">
+                                                    {filters.model}
+                                                    <button
+                                                        onClick={() => setFilter('model', '')}
+                                                        className="ml-1"
+                                                    >
+                                                        <X className="h-3 w-3" />
+                                                    </button>
+                                                </Badge>
+                                            </div>
+                                        )}
                                     </div>
-                                    <div>
-                                        <Label className="text-sm font-medium">Condition</Label>
-                                        <div className="mt-2">
-                                            <CheckboxGroup
-                                                options={Object.values(VehicleCondition)}
-                                                value={filters.condition}
-                                                onChange={(value) => setFilter('condition', value as VehicleCondition[])}
-                                                columns={2}
-                                            />
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <Label className="text-sm font-medium">Import Status</Label>
-                                        <div className="mt-2">
-                                            <CheckboxGroup
-                                                options={Object.values(ImportStatus)}
-                                                value={filters.import_status}
-                                                onChange={(value) => setFilter('import_status', value as ImportStatus[])}
-                                                columns={1}
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            </FilterSection>
 
-                            {/* Location */}
-                            <div ref={el => { scrollRefs.current['location'] = el; }}>
-                                <FilterSection 
-                                    title="Location" 
-                                    sectionId="location"
-                                    activeSection={activeSection}
-                                    onSectionChange={setActiveSection}
-                                >
-                                    <div className="space-y-4">
-                                        <div>
-                                            <Label htmlFor="location">Location</Label>
-                                            <Input
-                                                id="location"
-                                                placeholder="Enter city, postcode, or area"
-                                                value={filters.location}
-                                                onChange={(e) => setFilter('location', e.target.value)}
-                                            />
-                                        </div>
-                                        <RangeSlider
-                                            label="Previous Owners"
-                                            value={filters.ownership_history}
-                                            onChange={(value) => setFilter('ownership_history', value)}
-                                            min={1}
-                                            max={10}
+                                    <div className='space-y-3'>
+                                        <Label htmlFor="variant">Variant</Label>
+                                        <Input
+                                            id="variant"
+                                            placeholder="e.g., SE, Sport, Limited"
+                                            value={filters.variant}
+                                            onChange={(e) => setFilter('variant', e.target.value)}
                                         />
                                     </div>
-                                </FilterSection>
-                            </div>
+                                </div>
+                            </FilterSection>
+                        </div>
+
+                        {/* Year */}
+                        <div ref={el => { scrollRefs.current['year'] = el; }}>
+                            <FilterSection
+                                title="Year"
+                                sectionId="year"
+                                activeSection={activeSection}
+                                onSectionChange={setActiveSection}
+                            >
+                                <RangeSlider
+                                    label="Year"
+                                    value={filters.yearRange}
+                                    onChange={(value) => setFilter('yearRange', value)}
+                                    min={1990}
+                                    max={2024}
+                                />
+                            </FilterSection>
+                        </div>
+
+                        {/* Price */}
+                        <div ref={el => { scrollRefs.current['price'] = el; }}>
+                            <FilterSection
+                                title="Price"
+                                sectionId="price"
+                                activeSection={activeSection}
+                                onSectionChange={setActiveSection}
+                            >
+                                <RangeSlider
+                                    label="Price"
+                                    value={filters.priceRange}
+                                    onChange={(value) => setFilter('priceRange', value)}
+                                    min={0}
+                                    max={100000}
+                                    step={1000}
+                                    formatter={formatPrice}
+                                />
+                            </FilterSection>
+                        </div>
+
+                        {/* Mileage */}
+                        <div ref={el => { scrollRefs.current['mileage'] = el; }}>
+                            <FilterSection
+                                title="Mileage"
+                                sectionId="mileage"
+                                activeSection={activeSection}
+                                onSectionChange={setActiveSection}
+                            >
+                                <RangeSlider
+                                    label="Mileage"
+                                    value={filters.mileageRange}
+                                    onChange={(value) => setFilter('mileageRange', value)}
+                                    min={0}
+                                    max={200000}
+                                    step={1000}
+                                    formatter={formatMileage}
+                                />
+                            </FilterSection>
+                        </div>
+
+                        {/* Body Type */}
+                        <div ref={el => { scrollRefs.current['body-type'] = el; }}>
+                            <FilterSection
+                                title="Body Type"
+                                sectionId="body-type"
+                                activeSection={activeSection}
+                                onSectionChange={setActiveSection}
+                            >
+                                <CheckboxGroup
+                                    options={Object.values(BodyType)}
+                                    value={filters.body_type}
+                                    onChange={(value) => setFilter('body_type', value as BodyType[])}
+                                    columns={2}
+                                />
+                            </FilterSection>
+                        </div>
+
+                        {/* Fuel Type */}
+                        <div ref={el => { scrollRefs.current['fuel-type'] = el; }}>
+                            <FilterSection
+                                title="Fuel Type"
+                                sectionId="fuel-type"
+                                activeSection={activeSection}
+                                onSectionChange={setActiveSection}
+                            >
+                                <CheckboxGroup
+                                    options={Object.values(FuelType)}
+                                    value={filters.fuel_type}
+                                    onChange={(value) => setFilter('fuel_type', value as FuelType[])}
+                                    columns={2}
+                                />
+                            </FilterSection>
+                        </div>
+
+                        {/* Transmission */}
+                        <div ref={el => { scrollRefs.current['transmission'] = el; }}>
+                            <FilterSection
+                                title="Transmission"
+                                sectionId="transmission"
+                                activeSection={activeSection}
+                                onSectionChange={setActiveSection}
+                            >
+                                <CheckboxGroup
+                                    options={Object.values(TransmissionType)}
+                                    value={filters.transmission}
+                                    onChange={(value) => setFilter('transmission', value as TransmissionType[])}
+                                    columns={2}
+                                />
+                            </FilterSection>
+                        </div>
+
+                        {/* Engine Size */}
+                        <div ref={el => { scrollRefs.current['engine-size'] = el; }}>
+                            <FilterSection
+                                title="Engine Size"
+                                sectionId="engine-size"
+                                activeSection={activeSection}
+                                onSectionChange={setActiveSection}
+                            >
+                                <RangeSlider
+                                    label="Engine Size (L)"
+                                    value={filters.engine_size}
+                                    onChange={(value) => setFilter('engine_size', value)}
+                                    min={0}
+                                    max={6}
+                                    step={0.1}
+                                    formatter={(value) => `${value}L`}
+                                />
+                            </FilterSection>
+                        </div>
+
+                        {/* Doors */}
+                        <div ref={el => { scrollRefs.current['doors'] = el; }}>
+                            <FilterSection
+                                title="Doors"
+                                sectionId="doors"
+                                activeSection={activeSection}
+                                onSectionChange={setActiveSection}
+                            >
+                                <CheckboxGroup
+                                    options={['2', '3', '4', '5', '6+']}
+                                    value={filters.doors.map(String)}
+                                    onChange={(value) => setFilter('doors', value.map(Number))}
+                                    columns={3}
+                                />
+                            </FilterSection>
+                        </div>
+
+                        {/* Seller Type */}
+                        <div ref={el => { scrollRefs.current['seller-type'] = el; }}>
+                            <FilterSection
+                                title="Seller Type"
+                                sectionId="seller-type"
+                                activeSection={activeSection}
+                                onSectionChange={setActiveSection}
+                            >
+                                <CheckboxGroup
+                                    options={Object.values(SellerType)}
+                                    value={filters.seller_type}
+                                    onChange={(value) => setFilter('seller_type', value as SellerType[])}
+                                    columns={2}
+                                />
+                            </FilterSection>
+                        </div>
+
+                        {/* Vehicle Condition */}
+                        <div ref={el => { scrollRefs.current['condition'] = el; }}>
+                            <FilterSection
+                                title="Vehicle Condition"
+                                sectionId="condition"
+                                activeSection={activeSection}
+                                onSectionChange={setActiveSection}
+                            >
+                                <CheckboxGroup
+                                    options={Object.values(VehicleCondition)}
+                                    value={filters.condition}
+                                    onChange={(value) => setFilter('condition', value as VehicleCondition[])}
+                                    columns={2}
+                                />
+                            </FilterSection>
+                        </div>
+
+                        {/* Import Status */}
+                        <div ref={el => { scrollRefs.current['import-status'] = el; }}>
+                            <FilterSection
+                                title="Import Status"
+                                sectionId="import-status"
+                                activeSection={activeSection}
+                                onSectionChange={setActiveSection}
+                            >
+                                <CheckboxGroup
+                                    options={Object.values(ImportStatus)}
+                                    value={filters.import_status}
+                                    onChange={(value) => setFilter('import_status', value as ImportStatus[])}
+                                    columns={1}
+                                />
+                            </FilterSection>
+                        </div>
+
+                        {/* Location */}
+                        <div ref={el => { scrollRefs.current['location'] = el; }}>
+                            <FilterSection
+                                title="Location"
+                                sectionId="location"
+                                activeSection={activeSection}
+                                onSectionChange={setActiveSection}
+                            >
+                                <div className="space-y-3">
+                                    <SearchableSelect
+                                        options={[
+                                            ...locationData.popularCities,
+                                            ...Object.keys(locationData.locationsByDistrict).flatMap(district => 
+                                                locationData.locationsByDistrict[district as keyof typeof locationData.locationsByDistrict]
+                                            )
+                                        ].filter((location, index, array) => array.indexOf(location) === index).sort()}
+                                        value={filters.location}
+                                        onValueChange={(value) => setFilter('location', value)}
+                                        placeholder="Enter city, postcode, or area"
+                                        searchPlaceholder="Search locations..."
+                                        emptyMessage="No locations found"
+                                    />
+                                </div>
+                            </FilterSection>
+                        </div>
+
+                        {/* Previous Owners */}
+                        <div ref={el => { scrollRefs.current['owners'] = el; }}>
+                            <FilterSection
+                                title="Previous Owners"
+                                sectionId="owners"
+                                activeSection={activeSection}
+                                onSectionChange={setActiveSection}
+                            >
+                                <RangeSlider
+                                    label="Previous Owners"
+                                    value={filters.ownership_history}
+                                    onChange={(value) => setFilter('ownership_history', value)}
+                                    min={1}
+                                    max={10}
+                                />
+                            </FilterSection>
                         </div>
                     </div>
                 </div>
@@ -889,23 +950,26 @@ const VehicleFilterSystem: React.FC = () => {
             <div className="mb-8">
                 <h1 className="text-3xl font-bold mb-6">Find Your Perfect Vehicle</h1>
 
-            <div className='flex w-full justify-between'>   {/* Quick Filters */}
-                <QuickFilters
-                    onOpenAdvanced={handleOpenAdvanced}
-                />
- <Button className="flex items-center gap-2">
-                            <SlidersHorizontal className="h-4 w-4" />
-                            Advanced Filters
-                            {activeFiltersCount > 0 && (
-                                <Badge variant="default" className="ml-2">
-                                    {activeFiltersCount}
-                                </Badge>
-                            )}
-                        </Button></div>
-             
+                <div className='flex w-full justify-between'>   {/* Quick Filters */}
+                    <QuickFilters
+                        onOpenAdvanced={handleOpenAdvanced}
+                    />
+                    <Button 
+                        className="flex items-center gap-2"
+                        onClick={() => handleOpenAdvanced()}
+                    >
+                        <SlidersHorizontal className="h-4 w-4" />
+                        Advanced Filters
+                        {activeFiltersCount > 0 && (
+                            <Badge variant="default" className="ml-2">
+                                {activeFiltersCount}
+                            </Badge>
+                        )}
+                    </Button></div>
+
                 {/* Filter Pills */}
                 <FilterPills />
- 
+
                 {/* Advanced Filters Button */}
                 <div className="flex w-full items-center gap-4 mb-6">
                     <AdvancedFiltersModal
@@ -913,7 +977,7 @@ const VehicleFilterSystem: React.FC = () => {
                         isOpen={isModalOpen}
                         onOpenChange={setIsModalOpen}
                     >
-                      <></>
+                        <></>
                     </AdvancedFiltersModal>
 
                     {/* <Button className="flex items-center gap-2">
