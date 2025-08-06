@@ -5,37 +5,30 @@ import { Search, Menu, X, User, Heart, Bell, MapPin, Phone, Mail } from 'lucide-
 import { VehicleTypeSelector } from './VehicleTypeSelector/VehicleTypeSelector';
 import Image from 'next/image';
 import logo from '../../../../public/logo.png';
+import { useVehicleTypeStore } from '@/app/store/vehicleSlice';
+import { vehicleSubmenus } from '@/app/Types/CommonTypes';
 
 const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+    const { selectedVehicleType } = useVehicleTypeStore();
+    const renderSubMenus = () => {
+        const submenus = selectedVehicleType ? vehicleSubmenus[selectedVehicleType] : null
 
+        if (!submenus) return null
+
+        return Object.values(submenus).map((item) => (
+            <a
+                key={item.link}
+                href={item.link}
+                className="text-gray-700 hover:text-gray-500 font-bold"
+            >
+                {item.label}
+            </a>
+        ))
+    }
     return (
         <nav className="mx-auto border-b sticky top-0 z-50 bg-white">
-            {/* Top bar with contact info - hidden on mobile */}
-            {/* <div className="hidden md:block bg-gray-50 border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-2 text-sm text-gray-600">
-            <div className="flex items-center space-x-6">
-              <div className="flex items-center space-x-1">
-                <Phone className="w-4 h-4" />
-                <span>+94 11 234 5678</span>
-              </div>
-              <div className="flex items-center space-x-1">
-                <Mail className="w-4 h-4" />
-                <span>info@caro.lk</span>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span>Follow us:</span>
-              <div className="flex space-x-2">
-                <a href="#" className="hover:text-[#5ddbe8]">Facebook</a>
-                <a href="#" className="hover:text-[#5ddbe8]">Instagram</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div> */}
 
             {/* Vehicle Types Bar */}
             <VehicleTypeSelector />
@@ -43,53 +36,24 @@ const Navbar = () => {
             {/* Main navigation */}
             <div className="w-full py-3 px-3 md:p-0">
 
-                <div className="flex justify-between items-center py-1">
+                <div className="flex justify-between gap-5 items-center py-1">
 
                     <div className="flex items-center">
                         <Image src={logo} width={160} height={60} alt="Caro logo" className='' />
                     </div>
                     {/* Desktop Navigation Links */}
+                    <div className='flex w-full justify-between'>
                     <div className="hidden md:flex items-center space-x-8">
-                        <a href="#" className="text-gray-700 hover:text-gray-500 font-bold">
-                            Buy
-                        </a>
-                        <a href="#" className="text-gray-700 hover:text-gray-500 font-bold">
-                            Sell
-                        </a>
-                        <a href="#" className="text-gray-700 hover:text-gray-500 font-bold">
-                            Dealers
-                        </a>
-                        <a href="#" className="text-gray-700 hover:text-gray-500 font-bold">
-                            Reviews
-                        </a>
-                        <a href="#" className="text-gray-700 hover:text-gray-500 font-bold">
-                            Finance
-                        </a>
-                        <a href="#" className="text-gray-700 hover:text-gray-500 font-bold">
-                            Insurance
-                        </a>
+                        {renderSubMenus()}
                     </div>
 
                     {/* Right side actions */}
                     <div className="flex items-center space-x-4">
-                        {/* Location */}
-                        {/* <div className="hidden lg:flex items-center space-x-1 text-gray-600">
-              <MapPin className="w-4 h-4" />
-              <span className="text-sm">Colombo</span>
-            </div> */}
 
                         {/* Search Icon - mobile only */}
                         <button className="md:hidden p-2 text-gray-600 hover:text-[#5ddbe8]">
                             <Search className="w-5 h-5" />
                         </button>
-
-                        {/* Notifications */}
-                        {/* <button className="p-2 text-gray-600 hover:text-[#5ddbe8] relative">
-              <Bell className="w-5 h-5" />
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                3
-              </span>
-            </button> */}
 
                         {/* Favorites */}
                         <button className="flex flex-col items-center p-2 text-gray-600 hover:text-[#5ddbe8]">
@@ -142,7 +106,7 @@ const Navbar = () => {
                         >
                             {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
                         </button>
-                    </div>
+                    </div></div>
                 </div>
 
                 {/* Mobile Navigation Menu */}

@@ -9,13 +9,13 @@ export default function Home() {
     <div className="">
  
       <main className='max-w-7xl mx-auto'>
-       
-        <SearchComp/>
-        <VehicleViewer/>
+       <div className='mt-5 text-4xl'>Home page</div>
+        {/* <SearchComp/>
+        <VehicleViewer/> */}
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
+      {/* <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
 
-      </footer>
+      </footer> */}
     </div>
   );
 }
