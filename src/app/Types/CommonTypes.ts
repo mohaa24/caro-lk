@@ -15,7 +15,7 @@ export enum VehicleType {
   Farm = 'Farm',
   Plant = 'Plant',
   ElectricBike = 'Electric Bike',
-  // Other = 'Other',
+  Other = 'Other',
 }
 
 export enum TransmissionType {
@@ -45,6 +45,20 @@ export interface VehicleImage {
   url: string
 }
 
+export enum BodyType {
+  Sedan = 'Sedan',
+  Hatchback = 'Hatchback',
+  SUV = 'SUV',
+  Coupe = 'Coupe',
+  Convertible = 'Convertible',
+  Wagon = 'Wagon',
+  Van = 'Van',
+  Pickup = 'Pickup',
+  Crossover = 'Crossover',
+  Minivan = 'Minivan',
+  Truck = 'Truck',
+  Other = 'Other',
+}
 // Base Vehicle Type
 export interface VehicleBase {
   vehicle_type: VehicleType
@@ -57,7 +71,7 @@ export interface VehicleBase {
   mileage: number
   fuel_type: FuelType
   transmission: TransmissionType
-  body_type: string
+  body_type: BodyType
   color?: string
   engine_size?: number
   doors?: number
