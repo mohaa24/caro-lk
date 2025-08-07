@@ -1,14 +1,12 @@
 'use client';
 
-import Navbar from '@/app/components/NavBar/NavBar';
+import { Suspense } from 'react';
 import { SearchComp } from '@/app/components/Search/Search';
 import VehicleViewer from './components/VehicleCard/VehicleCard';
-import VehicleFilterSystem from './components/AdvancedFilter/AdvancedFilter';
 
-export default function Home() {
+function HomeContent() {
   return (
     <div className="">
- 
       <main className='max-w-7xl mx-auto'>
        {/* <div className='mt-5 text-4xl'>Home page</div> */}
         <SearchComp/>
@@ -19,5 +17,13 @@ export default function Home() {
 
       </footer> */}
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <HomeContent />
+    </Suspense>
   );
 }

@@ -19,6 +19,13 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
 import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import {
     ChevronDown,
     ChevronUp,
     X,
@@ -53,6 +60,7 @@ import locationData from '@/data/locationData.json';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import { useVehicleFilters, VehicleFilters } from '@/app/store/filtersSlice';
 import VehicleViewer from '../VehicleCard/VehicleCard';
+import { useURLSync } from '@/lib/hooks/useURLSync';
 
 // Filter Interfaces
 interface FilterPill {
@@ -93,20 +101,10 @@ interface RangeSliderProps {
 }
 
 interface AdvancedFiltersModalProps {
-    children: ReactNode;
+    children?: ReactNode;
     onScrollToSection: (scrollFn: (sectionId: string) => void) => void;
     isOpen?: boolean;
     onOpenChange?: (open: boolean) => void;
-}
-
-interface VehicleCardProps {
-    vehicle: {
-        title: string;
-        year: number;
-        price: number;
-        mileage: number;
-        location: string;
-    };
 }
 
 // Sample data from JSON file
@@ -201,6 +199,12 @@ const QuickFilters: React.FC<QuickFiltersProps> = ({ onOpenAdvanced }) => {
     const { filters } = useVehicleFilters();
 
     const quickFilterButtons = [
+        {
+            label: 'Vehicle Type',
+            icon: Car,
+            section: 'vehicle-type',
+            hasValue: filters.vehicle_type !== 'all'
+        },
         {
             label: 'Make & Model',
             icon: Car,
@@ -373,7 +377,6 @@ const RangeSlider: React.FC<RangeSliderProps> = ({ label, value, onChange, min, 
 
 // Advanced Filters Modal
 const AdvancedFiltersModal: React.FC<AdvancedFiltersModalProps> = ({
-    children,
     onScrollToSection,
     isOpen,
     onOpenChange
@@ -405,7 +408,6 @@ const AdvancedFiltersModal: React.FC<AdvancedFiltersModalProps> = ({
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange} >
             <DialogTrigger asChild>
-                {children}
             </DialogTrigger>
             <DialogContent className="sm:max-w-2xl max-h-[90vh] [&>button]:hidden [&>[data-radix-dialog-close]]:hidden flex flex-col overflow-hidden">
                 <DialogHeader className="flex-shrink-0">
@@ -434,12 +436,38 @@ const AdvancedFiltersModal: React.FC<AdvancedFiltersModalProps> = ({
                                 activeSection={activeSection}
                                 onSectionChange={setActiveSection}
                             >
-                                <CheckboxGroup
-                                    options={Object.values(VehicleType)}
-                                    value={filters.vehicle_type}
-                                    onChange={(value) => setFilter('vehicle_type', value as VehicleType[])}
-                                    columns={2}
-                                />
+                                <div className="space-y-3">
+                                    <Label>Vehicle Type</Label>
+                                    <Select
+                                        value={filters.vehicle_type}
+                                        onValueChange={(value) => setFilter('vehicle_type', value)}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select vehicle type" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">All Vehicle Types</SelectItem>
+                                            {Object.values(VehicleType).map((type) => (
+                                                <SelectItem key={type} value={type}>
+                                                    {type}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    {filters.vehicle_type && filters.vehicle_type !== 'all' && (
+                                        <div className="flex items-center gap-2 mt-2">
+                                            <Badge variant="secondary" className="text-xs">
+                                                {filters.vehicle_type}
+                                                <button
+                                                    onClick={() => setFilter('vehicle_type', 'all')}
+                                                    className="ml-1"
+                                                >
+                                                    <X className="h-3 w-3" />
+                                                </button>
+                                            </Badge>
+                                        </div>
+                                    )}
+                                </div>
                             </FilterSection>
                         </div>
 
@@ -789,6 +817,9 @@ const VehicleFilterSystem: React.FC = () => {
     const activeFiltersCount = useVehicleFilters(state => state.getActiveFiltersCount());
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [pendingScrollSection, setPendingScrollSection] = useState<string | null>(null);
+    
+    // Initialize URL synchronization
+    useURLSync();
 
     const handleOpenAdvanced = (sectionId?: string) => {
         setIsModalOpen(true);
@@ -810,7 +841,7 @@ const VehicleFilterSystem: React.FC = () => {
    
     return (
         <>
-        <div className="max-w-7xl mx-auto py-5 px-5">
+        <div className="max-w-7xl mx-auto py-5 px-5 md:px-0">
             <div className="">
                 <h1 className="text-3xl font-bold mb-6">Find Your Perfect Vehicle</h1>
 
@@ -841,7 +872,7 @@ const VehicleFilterSystem: React.FC = () => {
                         isOpen={isModalOpen}
                         onOpenChange={setIsModalOpen}
                     >
-                        <></>
+                       
                     </AdvancedFiltersModal>
 
                     {/* <Button className="flex items-center gap-2">

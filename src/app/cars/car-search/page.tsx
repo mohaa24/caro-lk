@@ -2,10 +2,8 @@
 
 import { Suspense } from 'react';
 import VehicleFilterSystem from '@/app/components/AdvancedFilter/AdvancedFilter';
-import { SearchComp } from '@/app/components/Search/Search';
-import VehicleViewer from '@/app/components/VehicleCard/VehicleCard';
 
-function UsedCarsPageContent() {
+function CarSearchContent() {
   return (
     <div className="">
       <header className='md:max-w-7xl md:mx-auto'>
@@ -23,10 +21,10 @@ function UsedCarsPageContent() {
   );
 }
 
-export default function OldCars() {
+export default function CarSearch() {
   return (
     <Suspense fallback={<div>Loading filters...</div>}>
-      <UsedCarsPageContent />
+      <CarSearchContent />
     </Suspense>
   );
 }

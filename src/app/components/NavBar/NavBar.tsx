@@ -6,6 +6,8 @@ import { VehicleTypeSelector } from './VehicleTypeSelector/VehicleTypeSelector';
 import Image from 'next/image';
 import logo from '../../../../public/logo.png';
 import { useVehicleTypeStore } from '@/app/store/vehicleSlice';
+import { useAuth, useUserInfo } from '@/app/store/userSlice';
+import { useLogout } from '@/lib/hooks/useAuth';
 import { vehicleSubmenus } from '@/app/Types/CommonTypes';
 import Link from 'next/link';
 
@@ -13,6 +15,14 @@ const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const { selectedVehicleType } = useVehicleTypeStore();
+    const { isAuthenticated } = useAuth();
+    const { fullName, userType } = useUserInfo();
+    const logoutMutation = useLogout();
+
+    const handleLogout = () => {
+        logoutMutation.mutate();
+        setIsUserMenuOpen(false);
+    };
     const renderSubMenus = () => {
         const submenus = selectedVehicleType ? vehicleSubmenus[selectedVehicleType] : null
 
@@ -28,6 +38,23 @@ const Navbar = () => {
             </a>
         ))
     }
+
+    const renderMobileSubMenus = () => {
+        const submenus = selectedVehicleType ? vehicleSubmenus[selectedVehicleType] : null
+
+        if (!submenus) return null
+
+        return Object.values(submenus).map((item) => (
+            <a
+                key={item.link}
+                href={item.link}
+                className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#5ddbe8]"
+            >
+                {item.label}
+            </a>
+        ))
+    }
+
     return (
         <nav className="mx-auto border-b sticky top-0 z-50 bg-white">
 
@@ -73,27 +100,54 @@ const Navbar = () => {
                                     className="flex flex-col items-center space-x-1 p-2 text-gray-600 hover:text-[#5ddbe8]"
                                 >
                                     <User className="w-5 h-5" />
-                                    <span className="hidden sm:block text-sm">Account</span>
+                                    <span className="hidden sm:block text-sm">
+                                        {isAuthenticated ? 'Account' : 'Account'}
+                                    </span>
                                 </button>
 
                                 {isUserMenuOpen && (
                                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-                                        <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                            My Profile
-                                        </a>
-                                        <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                            My Listings
-                                        </a>
-                                        <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                            Saved Vehicles
-                                        </a>
-                                        <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                            Messages
-                                        </a>
-                                        <hr className="my-1" />
-                                        <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                            Sign Out
-                                        </a>
+                                        {isAuthenticated ? (
+                                            <>
+                                                <div className="px-4 py-2 border-b border-gray-100">
+                                                    <p className="text-sm font-medium text-gray-900">{fullName}</p>
+                                                    <p className="text-xs text-gray-500 capitalize">{userType}</p>
+                                                </div>
+                                                <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                    My Profile
+                                                </Link>
+                                                <Link href="/my-listings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                    My Listings
+                                                </Link>
+                                                <Link href="/saved" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                    Saved Vehicles
+                                                </Link>
+                                                <Link href="/messages" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                    Messages
+                                                </Link>
+                                                <hr className="my-1" />
+                                                <button 
+                                                    onClick={handleLogout}
+                                                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                    disabled={logoutMutation.isPending}
+                                                >
+                                                    {logoutMutation.isPending ? 'Signing out...' : 'Sign Out'}
+                                                </button>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Link href="/login" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                    Sign In
+                                                </Link>
+                                                <Link href="/register" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                    Create Account
+                                                </Link>
+                                                <hr className="my-1" />
+                                                <Link href="/help" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                    Help Center
+                                                </Link>
+                                            </>
+                                        )}
                                     </div>
                                 )}
                             </div>
@@ -118,7 +172,11 @@ const Navbar = () => {
                 {isMenuOpen && (
                     <div className="md:hidden border-t bg-white">
                         <div className="py-4 space-y-3">
-                            <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#5ddbe8]">
+                                        <VehicleTypeSelector />
+
+                                                                    {renderMobileSubMenus()}
+
+                            {/* <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#5ddbe8]">
                                 Buy
                             </a>
                             <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#5ddbe8]">
@@ -135,7 +193,7 @@ const Navbar = () => {
                             </a>
                             <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#5ddbe8]">
                                 Insurance
-                            </a>
+                            </a> */}
                             <div className="px-4 py-2">
                                 <button className="w-full bg-red-800 hover:bg-orange-600 text-white px-4 py-3 rounded-md font-medium">
                                     Sell Your Car

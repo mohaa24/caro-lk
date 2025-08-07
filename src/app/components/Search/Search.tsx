@@ -11,8 +11,12 @@ import vehicleData from '@/data/vehicleData.json';
 import locationData from '@/data/locationData.json';
 import Link from "next/link";
 import { useVehicleFilters } from '@/app/store/filtersSlice';
+import { useURLSync } from '@/lib/hooks/useURLSync';
 export const SearchComp = () => {
     const { filters, setFilter } = useVehicleFilters();
+    
+    // Initialize URL synchronization
+    useURLSync();
     
     // Get all locations
     const allLocations = [
@@ -62,16 +66,12 @@ export const SearchComp = () => {
                             emptyMessage={filters.make ? "No models found" : "Select make first"}
                         />
 
-                        <Link href={'cars/used'}>
+                        <Link href={'cars/car-search'}>
                             <Button className="my-3 w-full">
                                 <Search /> Search
                             </Button>
                         </Link>
-                         {/* <div className="flex gap-3 justify-between py-2">
-                            <button className="text-blue-500 underline">Reset</button>
-                            <button className="text-blue-500 underline">Advanced filter</button>
-
-                        </div> */}
+                 
                     </div>
 
                 </CardContent>

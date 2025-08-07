@@ -1,10 +1,11 @@
 'use client';
 
+import { Suspense } from 'react';
 import Navbar from '@/app/components/NavBar/NavBar';
 import { SearchComp } from '@/app/components/Search/Search';
 import VehicleViewer from '../components/VehicleCard/VehicleCard';
 
-export default function Home() {
+function CarsPageContent() {
   return (
     <div className="">
       <header className='md:max-w-7xl md:mx-auto'>
@@ -19,5 +20,13 @@ export default function Home() {
 
       </footer>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CarsPageContent />
+    </Suspense>
   );
 }

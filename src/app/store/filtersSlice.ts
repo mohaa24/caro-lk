@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import {
-    VehicleType,
     FuelType,
     TransmissionType,
     BodyType,
@@ -11,7 +10,7 @@ import {
 
 // Filter Interfaces
 export interface VehicleFilters {
-    vehicle_type: VehicleType[];
+    vehicle_type: string; // Changed from VehicleType[] to single string
     make: string;
     model: string;
     variant: string;
@@ -41,7 +40,7 @@ export interface VehicleFiltersStore {
 
 // Default filter values
 const defaultFilters: VehicleFilters = {
-    vehicle_type: [],
+    vehicle_type: 'all', // Changed from '' to 'all'
     make: '',
     model: '',
     variant: '',
@@ -76,7 +75,6 @@ export const useVehicleFilters = create<VehicleFiltersStore>((set, get) => ({
     clearFilter: (key) => set((state) => {
         const newFilters = { ...state.filters };
         switch (key) {
-            case 'vehicle_type':
             case 'fuel_type':
             case 'transmission':
             case 'body_type':
@@ -85,7 +83,10 @@ export const useVehicleFilters = create<VehicleFiltersStore>((set, get) => ({
             case 'seller_type':
             case 'import_status':
             case 'condition':
-                (newFilters[key] as string[] | VehicleType[] | FuelType[] | TransmissionType[] | BodyType[] | number[] | SellerType[] | ImportStatus[] | VehicleCondition[]) = [];
+                (newFilters[key] as string[] | FuelType[] | TransmissionType[] | BodyType[] | number[] | SellerType[] | ImportStatus[] | VehicleCondition[]) = [];
+                break;
+            case 'vehicle_type':
+                (newFilters[key] as string) = 'all';
                 break;
             case 'make':
             case 'model':
@@ -129,7 +130,7 @@ export const useVehicleFilters = create<VehicleFiltersStore>((set, get) => ({
                 } else {
                     count++;
                 }
-            } else if (typeof value === 'string' && value.trim() !== '') {
+            } else if (typeof value === 'string' && value.trim() !== '' && value !== 'all') {
                 count++;
             }
         });

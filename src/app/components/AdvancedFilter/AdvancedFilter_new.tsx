@@ -785,8 +785,8 @@ const VehicleFilterSystem: React.FC = () => {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
-      <div className="mb-8">
+    <div className="max-w-7xl mx-auto p-6 pb-0 md:p-0">
+      <div className="">
         <h1 className="text-3xl font-bold mb-6">Find Your Perfect Vehicle</h1>
         
         {/* Quick Filters */}
@@ -799,7 +799,7 @@ const VehicleFilterSystem: React.FC = () => {
         <FilterPills />
         
         {/* Advanced Filters Button */}
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center gap-4 ">
           <AdvancedFiltersModal onScrollToSection={setScrollToSection}>
             <Button variant="outline" className="flex items-center gap-2">
               <SlidersHorizontal className="h-4 w-4" />
