@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar } from '@radix-ui/react-avatar';
 import { AvatarFallback } from '@/components/ui/avatar';
+import Link from 'next/link';
 
 // Mock vehicle data - you'll replace this with real data
 const mockVehicles = [
@@ -230,6 +231,7 @@ const VehicleCard = ({ vehicle }) => {
   };
 
   return (
+    <Link href={'/car-details/' + vehicle.id }>
     <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300 pt-0">
       {/* Image Section */}
       <div className="relative h-48 bg-muted">
@@ -381,6 +383,7 @@ const VehicleCard = ({ vehicle }) => {
         </div>
       </CardFooter>
     </Card>
+    </Link>
   );
 };
 

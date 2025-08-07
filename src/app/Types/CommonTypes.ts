@@ -82,6 +82,9 @@ export interface VehicleBase {
   condition: VehicleCondition
   ownership_history: number
   description: string
+  // need to add
+
+  features:string[]
 }
 
 // Full Vehicle Output Type
