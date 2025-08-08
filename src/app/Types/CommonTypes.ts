@@ -83,7 +83,7 @@ export interface VehicleBase {
   condition: VehicleCondition
   ownership_history: number
   description: string
-
+  created_at:string
   features:string[];
 
 }

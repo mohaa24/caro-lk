@@ -102,13 +102,13 @@ const VehicleCard = ({ vehicle }: { vehicle: VehicleResponse }) => {
             <h3 className="text-lg font-semibold leading-tight line-clamp-1">
               {vehicle.make} {vehicle.model} {vehicle.year}
             </h3>
-            <div className="flex items-center space-x-1 text-sm">
+                            {/* Rating not available in search results - would need separate API call */}
+            {/* <div className="flex items-center space-x-1 text-sm">
               <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
               <span className="text-muted-foreground">
-                {/* Rating not available in search results - would need separate API call */}
                 {'N/A'}
               </span>
-            </div>
+            </div> */}
           </div>
         </CardHeader>
 

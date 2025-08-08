@@ -44,6 +44,30 @@ export const CarDetails: React.FC<CarDetailsProps> = ({ carId }) => {
 
     const formatPrice = (price: number) => `LKR ${price.toLocaleString()}`;
 
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffTime = now.getTime() - date.getTime();
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 0) {
+            return 'Today';
+        } else if (diffDays === 1) {
+            return 'Yesterday';
+        } else if (diffDays < 7) {
+            return `${diffDays} days ago`;
+        } else if (diffDays < 30) {
+            const weeks = Math.floor(diffDays / 7);
+            return `${weeks} week${weeks > 1 ? 's' : ''} ago`;
+        } else {
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+    };
+
     // Loading state
     if (isLoading) {
         return (
@@ -88,7 +112,7 @@ export const CarDetails: React.FC<CarDetailsProps> = ({ carId }) => {
                         <span>{carData.location}</span>
                         <Separator orientation="vertical" className="h-4" />
                         <Eye className="h-4 w-4" />
-                        <span>Recently added</span>
+                        <span>{formatDate(carData.created_at)}</span>
                     </div>
                 </div>
 
