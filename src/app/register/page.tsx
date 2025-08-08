@@ -119,10 +119,10 @@ export default function RegisterPage() {
     }));
     
     // Clear error when user starts typing
-    if (errors[field as keyof RegisterErrors]) {
-      setErrors(prev => ({
+    if (clientErrors[field]) {
+      setClientErrors(prev => ({
         ...prev,
-        [field]: undefined
+        [field]: ''
       }));
     }
   };
@@ -191,10 +191,14 @@ export default function RegisterPage() {
             </div>
 
             {/* Error Alert */}
-            {errors.general && (
+            {registerMutation.error && (
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{errors.general}</AlertDescription>
+                <AlertDescription>
+                  {registerMutation.error instanceof Error 
+                    ? registerMutation.error.message 
+                    : 'Registration failed. Please try again.'}
+                </AlertDescription>
               </Alert>
             )}
 
@@ -212,7 +216,7 @@ export default function RegisterPage() {
                       type="text"
                       autoComplete="given-name"
                       className={`appearance-none relative block w-full px-3 py-3 pl-10 border ${
-                        errors.firstName ? 'border-red-300' : 'border-gray-300'
+                        clientErrors.firstName ? 'border-red-300' : 'border-gray-300'
                       } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10`}
                       placeholder="First name"
                       value={formData.firstName}
@@ -220,8 +224,8 @@ export default function RegisterPage() {
                     />
                     <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                   </div>
-                  {errors.firstName && (
-                    <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>
+                  {clientErrors.firstName && (
+                    <p className="mt-1 text-sm text-red-600">{clientErrors.firstName}</p>
                   )}
                 </div>
 
@@ -236,7 +240,7 @@ export default function RegisterPage() {
                       type="text"
                       autoComplete="family-name"
                       className={`appearance-none relative block w-full px-3 py-3 pl-10 border ${
-                        errors.lastName ? 'border-red-300' : 'border-gray-300'
+                        clientErrors.lastName ? 'border-red-300' : 'border-gray-300'
                       } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10`}
                       placeholder="Last name"
                       value={formData.lastName}
@@ -244,8 +248,8 @@ export default function RegisterPage() {
                     />
                     <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                   </div>
-                  {errors.lastName && (
-                    <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>
+                  {clientErrors.lastName && (
+                    <p className="mt-1 text-sm text-red-600">{clientErrors.lastName}</p>
                   )}
                 </div>
               </div>
@@ -261,7 +265,7 @@ export default function RegisterPage() {
                     type="email"
                     autoComplete="email"
                     className={`appearance-none relative block w-full px-3 py-3 pl-10 border ${
-                      errors.email ? 'border-red-300' : 'border-gray-300'
+                      clientErrors.email ? 'border-red-300' : 'border-gray-300'
                     } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10`}
                     placeholder="Enter your email"
                     value={formData.email}
@@ -269,8 +273,8 @@ export default function RegisterPage() {
                   />
                   <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                 </div>
-                {errors.email && (
-                  <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                {clientErrors.email && (
+                  <p className="mt-1 text-sm text-red-600">{clientErrors.email}</p>
                 )}
               </div>
 
@@ -285,7 +289,7 @@ export default function RegisterPage() {
                     type={showPassword ? 'text' : 'password'}
                     autoComplete="new-password"
                     className={`appearance-none relative block w-full px-3 py-3 pl-10 pr-10 border ${
-                      errors.password ? 'border-red-300' : 'border-gray-300'
+                      clientErrors.password ? 'border-red-300' : 'border-gray-300'
                     } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10`}
                     placeholder="Create a password"
                     value={formData.password}
@@ -300,8 +304,8 @@ export default function RegisterPage() {
                     {showPassword ? <EyeOff /> : <Eye />}
                   </button>
                 </div>
-                {errors.password && (
-                  <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+                {clientErrors.password && (
+                  <p className="mt-1 text-sm text-red-600">{clientErrors.password}</p>
                 )}
               </div>
 
@@ -316,7 +320,7 @@ export default function RegisterPage() {
                     type={showConfirmPassword ? 'text' : 'password'}
                     autoComplete="new-password"
                     className={`appearance-none relative block w-full px-3 py-3 pl-10 pr-10 border ${
-                      errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
+                      clientErrors.confirmPassword ? 'border-red-300' : 'border-gray-300'
                     } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10`}
                     placeholder="Confirm your password"
                     value={formData.confirmPassword}
@@ -331,8 +335,8 @@ export default function RegisterPage() {
                     {showConfirmPassword ? <EyeOff /> : <Eye />}
                   </button>
                 </div>
-                {errors.confirmPassword && (
-                  <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
+                {clientErrors.confirmPassword && (
+                  <p className="mt-1 text-sm text-red-600">{clientErrors.confirmPassword}</p>
                 )}
               </div>
 
@@ -355,8 +359,8 @@ export default function RegisterPage() {
                     </Link>
                   </Label>
                 </div>
-                {errors.acceptTerms && (
-                  <p className="mt-1 text-sm text-red-600">{errors.acceptTerms}</p>
+                {clientErrors.acceptTerms && (
+                  <p className="mt-1 text-sm text-red-600">{clientErrors.acceptTerms}</p>
                 )}
 
                 <div className="flex items-start">
@@ -375,10 +379,10 @@ export default function RegisterPage() {
               <div>
                 <Button
                   type="submit"
-                  disabled={isLoading}
+                  disabled={registerMutation.isPending}
                   className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isLoading ? (
+                  {registerMutation.isPending ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                       Creating account...

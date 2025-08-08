@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { useVehiclesPublic } from '@/lib/hooks/useVehicles';
-import { useAuth, useLogin, useRegister } from '@/lib/hooks/useAuth';
-import type { UserLogin, UserCreate } from '@/lib/api/authApi';
+import { useLogin, useRegister } from '@/lib/hooks/useAuth';
+import { useAuth } from '@/app/store/userSlice';
+import type { UserLogin, UserCreate } from '@/lib/types/auth';
 
 export default function ApiTestComponent() {
   const [loginData, setLoginData] = useState<UserLogin>({ email: '', password: '' });
