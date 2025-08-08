@@ -2,9 +2,9 @@
 export const API_CONFIG = {
   // Base URLs for different environments
   LOCAL: process.env.NEXT_PUBLIC_LOCAL_API_URL || 'http://localhost:8001',
-  DEVELOPMENT: process.env.NEXT_PUBLIC_DEV_API_URL || 'https://dev-api.caro.lk',
-  STAGING: process.env.NEXT_PUBLIC_STAGING_API_URL || 'https://staging-api.caro.lk',
-  PRODUCTION: process.env.NEXT_PUBLIC_PROD_API_URL || 'https://api.caro.lk',
+  DEVELOPMENT: process.env.NEXT_PUBLIC_DEV_API_URL || 'https://web-production-9573d.up.railway.app',
+  STAGING: process.env.NEXT_PUBLIC_STAGING_API_URL || 'https://web-production-9573d.up.railway.app',
+  PRODUCTION: process.env.NEXT_PUBLIC_PROD_API_URL || 'https://web-production-9573d.up.railway.app',
 } as const;
 
 // Current environment - you can change this or use environment variables
