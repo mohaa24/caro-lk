@@ -85,7 +85,32 @@ export interface VehicleBase {
   description: string
   created_at:string
   features:string[];
+}
 
+// Vehicle Creation Type (for forms - excluding computed fields)
+export interface VehicleCreate {
+  vehicle_type: VehicleType
+  title: string
+  make: string
+  model: string
+  variant?: string
+  year: number
+  price: number
+  mileage: number
+  fuel_type: FuelType
+  transmission: TransmissionType
+  body_type: BodyType
+  color?: string
+  engine_size?: number
+  doors?: number
+  registration_date?: number
+  location: string
+  seller_type: SellerType
+  import_status?: ImportStatus
+  condition: VehicleCondition
+  ownership_history: number
+  description: string
+  features: string[];
 }
 
 // Full Vehicle Output Type
@@ -207,22 +232,31 @@ export interface PaginatedResponse<T> {
   };
 }
 
-// Vehicle creation schema (matching backend VehicleCreate)
-export interface VehicleCreate {
-  make: string;
-  model: string;
-  year: number;
-  price: number;
-  mileage: number;
-  location: string;
-  fuel_type: string;
-  transmission: string;
-  body_type: string;
-  color: string;
-  condition: string;
-  seller_type: string;
-  description?: string;
-  image_urls?: string[];
+// Vehicle creation schema (for API - matching backend requirements)
+export interface VehicleCreateAPI {
+  vehicle_type: VehicleType
+  title: string
+  make: string
+  model: string
+  variant?: string
+  year: number
+  price: number
+  mileage: number
+  fuel_type: FuelType
+  transmission: TransmissionType
+  body_type: BodyType
+  color?: string
+  engine_size?: number
+  doors?: number
+  registration_date?: number
+  location: string
+  seller_type: SellerType
+  import_status?: ImportStatus
+  condition: VehicleCondition
+  ownership_history: number
+  description: string
+  features: string[]
+  image_urls?: string[]
 }
 
 // Search parameters for vehicle queries
