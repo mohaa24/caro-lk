@@ -38,6 +38,7 @@ export enum ImportStatus {
 export enum VehicleCondition {
   Used = 'Used',
   New = 'New',
+  Reconditioned = 'Reconditioned',
 }
 
 // Image Output Type
@@ -99,18 +100,19 @@ export interface VehicleCreate {
   mileage: number
   fuel_type: FuelType
   transmission: TransmissionType
-  body_type: BodyType
-  color?: string
+  body_type: string  // API expects string, not enum
+  color: string      // Required by API
   engine_size?: number
-  doors?: number
-  registration_date?: number
+  doors: number      // Required by API
   location: string
   seller_type: SellerType
-  import_status?: ImportStatus
+  import_status: ImportStatus  // Required by API
   condition: VehicleCondition
   ownership_history: number
   description: string
-  features: string[];
+  features?: string[]  // Optional in API
+  insurance_expiry?: string  // New field from API
+  images?: { url: string }[]  // Images as URLs
 }
 
 // Full Vehicle Output Type

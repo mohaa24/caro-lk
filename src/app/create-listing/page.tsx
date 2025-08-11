@@ -16,11 +16,12 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { AuthGuard } from '@/components/AuthGuard';
+import { useCreateVehicle } from '@/lib/hooks/useVehicles';
+import { useAuth } from '@/app/store/userSlice';
 import {
   VehicleType,
   FuelType,
   TransmissionType,
-  BodyType,
   SellerType,
   ImportStatus,
   VehicleCondition,
@@ -45,11 +46,10 @@ const CreateListingContent = () => {
     mileage: 0,
     fuel_type: FuelType.Petrol,
     transmission: TransmissionType.Manual,
-    body_type: BodyType.Sedan,
+    body_type: 'Sedan',
     color: '',
     engine_size: 0,
     doors: 4,
-    registration_date: new Date().getFullYear(),
     location: '',
     seller_type: SellerType.Private,
     import_status: ImportStatus.UsedImport,
@@ -63,6 +63,12 @@ const CreateListingContent = () => {
   const [images, setImages] = useState<File[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const createVehicleMutation = useCreateVehicle();
+  const { isAuthenticated, user } = useAuth();
+
+  // Debug authentication status
+  console.log('Auth Status:', { isAuthenticated, user: user?.email, token: typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null });
 
   const commonFeatures = [
     'Air Conditioning', 'Power Steering', 'Central Locking', 'Power Windows',
@@ -74,6 +80,7 @@ const CreateListingContent = () => {
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
+    // Required fields based on API schema
     if (!formData.title.trim()) newErrors.title = 'Title is required';
     if (!formData.make.trim()) newErrors.make = 'Make is required';
     if (!formData.model.trim()) newErrors.model = 'Model is required';
@@ -84,12 +91,17 @@ const CreateListingContent = () => {
     if (formData.mileage < 0) newErrors.mileage = 'Mileage cannot be negative';
     if (!formData.location.trim()) newErrors.location = 'Location is required';
     if (!formData.description.trim()) newErrors.description = 'Description is required';
+    
+    // API requires these fields to be non-null
+    if (!formData.color || !formData.color.trim()) newErrors.color = 'Color is required';
+    if (!formData.doors || formData.doors < 2) newErrors.doors = 'Number of doors is required';
+    if (!formData.import_status) newErrors.import_status = 'Import status is required';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleInputChange = (field: keyof VehicleCreate, value: string | number | VehicleType | FuelType | TransmissionType | BodyType | SellerType | ImportStatus | VehicleCondition | string[] | undefined) => {
+  const handleInputChange = (field: keyof VehicleCreate, value: string | number | VehicleType | FuelType | TransmissionType | SellerType | ImportStatus | VehicleCondition | string[] | undefined) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -105,13 +117,13 @@ const CreateListingContent = () => {
   };
 
   const addFeature = (feature: string) => {
-    if (feature && !formData.features.includes(feature)) {
-      handleInputChange('features', [...formData.features, feature]);
+    if (feature && !(formData.features || []).includes(feature)) {
+      handleInputChange('features', [...(formData.features || []), feature]);
     }
   };
 
   const removeFeature = (feature: string) => {
-    handleInputChange('features', formData.features.filter(f => f !== feature));
+    handleInputChange('features', (formData.features || []).filter(f => f !== feature));
   };
 
   const handleCustomFeatureAdd = () => {
@@ -150,19 +162,39 @@ const CreateListingContent = () => {
     setIsSubmitting(true);
     
     try {
-      // TODO: Implement actual API call to create vehicle listing
-      console.log('Vehicle Data:', formData);
-      console.log('Images:', images);
+      // For now, we'll submit without images since the API expects image URLs
+      // TODO: Implement image upload to a file storage service first
+      const vehicleData: VehicleCreate = {
+        ...formData,
+        images: undefined // Remove images for now since we need to upload them first
+      };
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      console.log('Submitting vehicle data:', vehicleData);
+      
+      const result = await createVehicleMutation.mutateAsync(vehicleData);
       
       alert('Vehicle listing created successfully!');
-      // Reset form or redirect
+      console.log('Created vehicle:', result);
+      // TODO: Redirect to the created vehicle page or listings page
       
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error creating listing:', error);
-      alert('Failed to create listing. Please try again.');
+      
+      // Show more specific error messages
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response: { status: number; data: { detail?: string } } };
+        if (axiosError.response?.status === 401) {
+          alert('You are not authenticated. Please log in and try again.');
+        } else if (axiosError.response?.status === 422) {
+          alert('Invalid data provided. Please check your form and try again.');
+        } else if (axiosError.response?.data?.detail) {
+          alert(`Error: ${axiosError.response.data.detail}`);
+        } else {
+          alert('Failed to create listing. Please try again.');
+        }
+      } else {
+        alert('Failed to create listing. Please try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -326,19 +358,12 @@ const CreateListingContent = () => {
 
               <div>
                 <Label htmlFor="body_type">Body Type *</Label>
-                <Select 
-                  value={formData.body_type} 
-                  onValueChange={(value) => handleInputChange('body_type', value as BodyType)}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.values(BodyType).map(type => (
-                      <SelectItem key={type} value={type}>{type}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Input
+                  id="body_type"
+                  value={formData.body_type}
+                  onChange={(e) => handleInputChange('body_type', e.target.value)}
+                  placeholder="e.g., Sedan, SUV, Hatchback"
+                />
               </div>
 
               <div>
@@ -359,17 +384,37 @@ const CreateListingContent = () => {
               </div>
 
               <div>
-                <Label htmlFor="color">Color</Label>
+                <Label htmlFor="import_status">Import Status *</Label>
+                <Select 
+                  value={formData.import_status} 
+                  onValueChange={(value) => handleInputChange('import_status', value as ImportStatus)}
+                >
+                  <SelectTrigger className={errors.import_status ? 'border-red-500' : ''}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.values(ImportStatus).map(status => (
+                      <SelectItem key={status} value={status}>{status}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.import_status && <p className="text-red-500 text-sm mt-1">{errors.import_status}</p>}
+              </div>
+
+              <div>
+                <Label htmlFor="color">Color *</Label>
                 <Input
                   id="color"
                   value={formData.color || ''}
                   onChange={(e) => handleInputChange('color', e.target.value)}
                   placeholder="e.g., White, Black"
+                  className={errors.color ? 'border-red-500' : ''}
                 />
+                {errors.color && <p className="text-red-500 text-sm mt-1">{errors.color}</p>}
               </div>
 
               <div>
-                <Label htmlFor="doors">Number of Doors</Label>
+                <Label htmlFor="doors">Number of Doors *</Label>
                 <Input
                   id="doors"
                   type="number"
@@ -377,7 +422,9 @@ const CreateListingContent = () => {
                   onChange={(e) => handleInputChange('doors', parseInt(e.target.value) || undefined)}
                   min="2"
                   max="6"
+                  className={errors.doors ? 'border-red-500' : ''}
                 />
+                {errors.doors && <p className="text-red-500 text-sm mt-1">{errors.doors}</p>}
               </div>
 
               <div>
@@ -466,7 +513,7 @@ const CreateListingContent = () => {
                 <div key={feature} className="flex items-center space-x-2">
                   <Checkbox
                     id={feature}
-                    checked={formData.features.includes(feature)}
+                    checked={(formData.features || []).includes(feature)}
                     onCheckedChange={(checked) => {
                       if (checked) {
                         addFeature(feature);
@@ -492,7 +539,7 @@ const CreateListingContent = () => {
               </Button>
             </div>
 
-            {formData.features.length > 0 && (
+            {(formData.features && formData.features.length > 0) && (
               <div className="flex flex-wrap gap-2">
                 {formData.features.map(feature => (
                   <span

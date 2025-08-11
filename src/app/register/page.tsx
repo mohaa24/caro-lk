@@ -9,7 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Checkbox } from '@/components/ui/checkbox';
 import Link from 'next/link';
-import { Eye, EyeOff, Mail, Lock, AlertCircle, User } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, AlertCircle, User, Phone } from 'lucide-react';
 import { useRegister } from '@/lib/hooks/useAuth';
 import type { UserCreate } from '@/lib/types/auth';
 
@@ -17,6 +17,7 @@ interface RegisterFormData {
   firstName: string;
   lastName: string;
   email: string;
+  phone: string;
   password: string;
   confirmPassword: string;
   acceptTerms: boolean;
@@ -28,6 +29,7 @@ export default function RegisterPage() {
     firstName: '',
     lastName: '',
     email: '',
+    phone: '',
     password: '',
     confirmPassword: '',
     acceptTerms: false,
@@ -58,6 +60,13 @@ export default function RegisterPage() {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email address';
+    }
+
+    // Phone validation
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Phone number is required';
+    } else if (!/^[\+]?[1-9][\d]{0,15}$/.test(formData.phone.replace(/[\s\-\(\)]/g, ''))) {
+      newErrors.phone = 'Please enter a valid phone number';
     }
 
     // Password validation
@@ -98,6 +107,7 @@ export default function RegisterPage() {
         password: formData.password,
         first_name: formData.firstName,
         last_name: formData.lastName,
+        phone: formData.phone,
         user_type: 'Individual',
       };
 
@@ -275,6 +285,30 @@ export default function RegisterPage() {
                 </div>
                 {clientErrors.email && (
                   <p className="mt-1 text-sm text-red-600">{clientErrors.email}</p>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+                  Phone number
+                </Label>
+                <div className="mt-1 relative">
+                  <Input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    autoComplete="tel"
+                    className={`appearance-none relative block w-full px-3 py-3 pl-10 border ${
+                      clientErrors.phone ? 'border-red-300' : 'border-gray-300'
+                    } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10`}
+                    placeholder="Enter your phone number"
+                    value={formData.phone}
+                    onChange={(e) => handleInputChange('phone', e.target.value)}
+                  />
+                  <Phone className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                </div>
+                {clientErrors.phone && (
+                  <p className="mt-1 text-sm text-red-600">{clientErrors.phone}</p>
                 )}
               </div>
 

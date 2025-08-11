@@ -11,6 +11,7 @@ export interface UserCreate {
   email: string;
   first_name?: string | null;
   last_name?: string | null;
+  phone?: string | null;
   user_type?: UserType;
   business_name?: string | null;
   is_active?: boolean;
@@ -28,6 +29,7 @@ export interface UserRead {
   email: string;
   first_name?: string | null;
   last_name?: string | null;
+  phone?: string | null;
   user_type: UserType;
   business_name?: string | null;
   is_active: boolean;
@@ -74,6 +76,7 @@ export interface UserSummary {
   email: string;
   first_name?: string | null;
   last_name?: string | null;
+  phone?: string | null;
   user_type: UserType;
   business_name?: string | null;
 }
