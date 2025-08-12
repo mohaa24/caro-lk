@@ -87,15 +87,37 @@ export const vehicleApi = {
     }
   },
 
-  // Create new vehicle (requires authentication)
+    // Create new vehicle (requires authentication)
   createVehicle: async (vehicleData: VehicleCreate): Promise<VehicleResponse> => {
     try {
+      console.log('Input vehicleData:', vehicleData);
+      console.log('Images from form:', vehicleData.images);
+      
+      // Transform VehicleCreate to VehicleCreateAPI format
+      const apiData = {
+        ...vehicleData,
+        // Transform images array to image_urls
+        image_urls: vehicleData.images?.map(img => img.url) || [],
+        // Remove the images property as API expects image_urls
+        images: undefined
+      };
+      
+      console.log('Transformed image_urls:', apiData.image_urls);
+      
+      // Remove undefined properties
+      const cleanApiData = Object.fromEntries(
+        Object.entries(apiData).filter(([, value]) => value !== undefined)
+      );
+      
+      console.log('Final API data being sent:', cleanApiData);
+      
       const response = await apiClient.post<VehicleResponse>(
         API_ENDPOINTS.VEHICLES,
-        vehicleData
+        cleanApiData
       );
       return handleApiResponse(response);
     } catch (error) {
+      console.error('Vehicle creation error:', error);
       return handleApiError(error as AxiosError);
     }
   },

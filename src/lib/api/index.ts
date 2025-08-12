@@ -4,6 +4,11 @@ export { API_CONFIG, API_ENDPOINTS, getBaseURL, BASE_URL } from './config';
 
 // Vehicle API exports
 export { vehicleApi } from './vehicleApi';
+
+// Image API exports
+export { imageApi } from './imageApi';
+export type { ImageUploadResponse } from './imageApi';
+
 export type {
   VehicleSearchParams,
   VehicleSearchResponse,
@@ -15,16 +20,22 @@ export type {
 // React Query Hooks exports
 export {
   useVehicles,
+  useVehiclesPublic,
   useVehicleById,
-  useVehicleSearch,
+  useVehicle,
   useMakes,
   useModels,
   useLocations,
   useCreateVehicle,
-  useUpdateVehicle,
-  useDeleteVehicle,
   VEHICLE_QUERY_KEYS,
 } from '../hooks/useVehicles';
 
+// Image Hooks exports
+export {
+  useUploadSingleImage,
+  useUploadMultipleImages,
+  useDeleteImage,
+} from '../hooks/useImages';
+
 // Providers exports
-export { ReactQueryProvider, queryClient } from '../providers/ReactQueryProvider';
+export { ReactQueryProvider } from '../providers/ReactQueryProvider';

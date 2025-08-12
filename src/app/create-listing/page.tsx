@@ -17,6 +17,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { AuthGuard } from '@/components/AuthGuard';
 import { useCreateVehicle } from '@/lib/hooks/useVehicles';
+import { useUploadMultipleImages } from '@/lib/hooks/useImages';
 import { useAuth } from '@/app/store/userSlice';
 import {
   VehicleType,
@@ -61,10 +62,12 @@ const CreateListingContent = () => {
 
   const [newFeature, setNewFeature] = useState('');
   const [images, setImages] = useState<File[]>([]);
+  const [uploadedImageUrls, setUploadedImageUrls] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const createVehicleMutation = useCreateVehicle();
+  const uploadImagesMutation = useUploadMultipleImages();
   const { isAuthenticated, user } = useAuth();
 
   // Debug authentication status
@@ -162,19 +165,49 @@ const CreateListingContent = () => {
     setIsSubmitting(true);
     
     try {
-      // For now, we'll submit without images since the API expects image URLs
-      // TODO: Implement image upload to a file storage service first
+      console.log('=== STARTING VEHICLE CREATION PROCESS ===');
+      console.log('Form data:', formData);
+      console.log('Images to upload:', images);
+      console.log('Auth status:', { isAuthenticated, user: user?.email });
+      
+      // Step 1: Upload images if any
+      let imageUrls: string[] = [];
+      if (images.length > 0) {
+        console.log('=== STEP 1: UPLOADING IMAGES ===');
+        try {
+          const uploadResult = await uploadImagesMutation.mutateAsync(images);
+          console.log('Upload result:', uploadResult);
+          imageUrls = uploadResult.urls; // Extract URLs from the response
+          console.log('Extracted image URLs:', imageUrls);
+          setUploadedImageUrls(imageUrls);
+          console.log('✅ Images uploaded successfully');
+        } catch (uploadError) {
+          console.error('❌ Image upload failed:', uploadError);
+          throw new Error(`Image upload failed: ${uploadError}`);
+        }
+      } else {
+        console.log('No images to upload, proceeding without images');
+      }
+      
+      // Step 2: Create vehicle listing with image URLs
+      console.log('=== STEP 2: CREATING VEHICLE LISTING ===');
       const vehicleData: VehicleCreate = {
         ...formData,
-        images: undefined // Remove images for now since we need to upload them first
+        images: imageUrls.length > 0 ? imageUrls.map(url => ({ url })) : undefined
       };
       
-      console.log('Submitting vehicle data:', vehicleData);
+      console.log('Vehicle data being sent:', vehicleData);
+      console.log('Vehicle data JSON:', JSON.stringify(vehicleData, null, 2));
       
-      const result = await createVehicleMutation.mutateAsync(vehicleData);
-      
-      alert('Vehicle listing created successfully!');
-      console.log('Created vehicle:', result);
+      try {
+        const result = await createVehicleMutation.mutateAsync(vehicleData);
+        console.log('✅ Vehicle created successfully:', result);
+        alert('Vehicle listing created successfully!');
+      } catch (vehicleError) {
+        console.error('❌ Vehicle creation failed:', vehicleError);
+        console.error('Vehicle error details:', JSON.stringify(vehicleError, null, 2));
+        throw vehicleError;
+      }
       // TODO: Redirect to the created vehicle page or listings page
       
     } catch (error: unknown) {
@@ -588,7 +621,7 @@ const CreateListingContent = () => {
               <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600 mb-2">Upload vehicle photos (max 10)</p>
               <p className="text-sm text-gray-500 mb-4">JPG, PNG up to 5MB each</p>
-              <Input
+              <input
                 type="file"
                 multiple
                 accept="image/*"
@@ -596,33 +629,50 @@ const CreateListingContent = () => {
                 className="hidden"
                 id="image-upload"
               />
-              <Label htmlFor="image-upload" className="cursor-pointer">
-                <Button type="button" variant="outline">
+              <label htmlFor="image-upload" className="cursor-pointer">
+                <Button type="button" variant="outline" onClick={() => document.getElementById('image-upload')?.click()}>
                   Choose Photos
                 </Button>
-              </Label>
+              </label>
             </div>
 
             {images.length > 0 && (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {images.map((image, index) => (
-                  <div key={index} className="relative">
-                    <Image
-                      src={URL.createObjectURL(image)}
-                      alt={`Upload ${index + 1}`}
-                      className="w-full h-24 object-cover rounded-lg"
-                      width={96}
-                      height={96}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeImage(index)}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                ))}
+              <div className="space-y-4">
+                <h4 className="font-medium text-gray-900">Selected Images ({images.length}/10)</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {images.map((image, index) => (
+                    <div key={index} className="relative">
+                      <Image
+                        src={URL.createObjectURL(image)}
+                        alt={`Upload ${index + 1}`}
+                        className="w-full h-24 object-cover rounded-lg"
+                        width={96}
+                        height={96}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {uploadedImageUrls.length > 0 && (
+              <div className="space-y-4">
+                <h4 className="font-medium text-green-600">✓ Uploaded Images ({uploadedImageUrls.length})</h4>
+                <div className="grid grid-cols-1 gap-2">
+                  {uploadedImageUrls.map((url, index) => (
+                    <div key={index} className="flex items-center gap-2 p-2 bg-green-50 rounded">
+                      <span className="text-green-600 text-sm">✓</span>
+                      <span className="text-sm text-gray-600 truncate">{url}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </CardContent>
@@ -633,11 +683,11 @@ const CreateListingContent = () => {
           <Button type="button" variant="outline">
             Save as Draft
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type="submit" disabled={isSubmitting || uploadImagesMutation.isPending}>
             {isSubmitting ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Creating Listing...
+                {uploadImagesMutation.isPending ? 'Uploading Images...' : 'Creating Listing...'}
               </>
             ) : (
               'Create Listing'
